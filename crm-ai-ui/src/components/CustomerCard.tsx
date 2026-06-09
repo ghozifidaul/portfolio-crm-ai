@@ -15,7 +15,10 @@ const priorityLabel: Record<string, string> = {
   low: "Low",
 };
 
-function badgeText(priority: string | null, ticketCount: number): string | null {
+function badgeText(
+  priority: string | null,
+  ticketCount: number,
+): string | null {
   if (priority && ticketCount > 0) {
     return `${priorityLabel[priority] || priority} · ${ticketCount} open ticket${ticketCount === 1 ? "" : "s"}`;
   }
