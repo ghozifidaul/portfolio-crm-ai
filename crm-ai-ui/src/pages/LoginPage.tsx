@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type SubmitEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 import { getUserRole } from '../api/client'
@@ -9,7 +9,7 @@ export default function LoginPage() {
   const { login, loading, error } = useAuth()
   const navigate = useNavigate()
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     const ok = await login(username, password)
     if (ok) {
