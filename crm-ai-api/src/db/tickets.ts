@@ -96,6 +96,20 @@ export async function getOpenTickets(customerId: string): Promise<DbTicket[]> {
   return rows;
 }
 
+export async function getAllTickets(status?: string): Promise<DbTicket[]> {
+  if (status) {
+    const { rows } = await pool.query(
+      "SELECT * FROM tickets WHERE status = $1 ORDER BY priority DESC, created_at DESC",
+      [status]
+    );
+    return rows;
+  }
+  const { rows } = await pool.query(
+    "SELECT * FROM tickets ORDER BY priority DESC, created_at DESC"
+  );
+  return rows;
+}
+
 export async function resolveTicket(ticketId: string): Promise<DbTicket | null> {
   const { rows } = await pool.query(
     `UPDATE tickets SET status = 'resolved', resolved_at = NOW(), updated_at = NOW()

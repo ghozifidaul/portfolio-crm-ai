@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { sign, jwt } from 'hono/jwt'
-import { findByUsername, getTicketsByCustomer, getTicketById, getMessagesByTicket, getConversationHistory } from './db'
+import { findByUsername, getTicketsByCustomer, getAllTickets, getTicketById, getMessagesByTicket, getConversationHistory } from './db'
 import { processMessage } from './message-router'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production'
@@ -87,11 +87,10 @@ app.get('/api/tickets', authenticate, async (c) => {
   const customerId = c.req.query('customer_id')
   const status = c.req.query('status')
 
-  if (!customerId) {
-    return c.json({ error: 'customer_id query parameter is required' }, 400)
-  }
+  const tickets = customerId
+    ? await getTicketsByCustomer(customerId, status)
+    : await getAllTickets(status)
 
-  const tickets = await getTicketsByCustomer(customerId, status)
   return c.json(tickets)
 })
 

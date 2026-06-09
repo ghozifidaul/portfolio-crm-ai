@@ -5,6 +5,7 @@ export {
   getTicketById,
   getTicketsByCustomer,
   getOpenTickets,
+  getAllTickets,
   resolveTicket,
 } from "./tickets";
 export { addMessage, getConversationHistory, getMessagesByTicket } from "./messages";
