@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { sign, jwt } from 'hono/jwt'
 import { findByUsername, getTicketsByCustomer, getAllTickets, getTicketById, getMessagesByTicket, getConversationHistory } from './db'
 import { processMessage } from './message-router'
@@ -7,6 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production'
 
 const app = new Hono()
 
+app.use('/api/*', cors())
 const authenticate = jwt({ secret: JWT_SECRET, alg: 'HS256' })
 
 app.get('/', (c) => {
