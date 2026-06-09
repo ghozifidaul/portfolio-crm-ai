@@ -9,6 +9,7 @@ export interface DbUser {
 export interface DbTicket {
   ticket_id: string;
   customer_id: string;
+  customer_name?: string;
   channel: string;
   category: string;
   priority: string;

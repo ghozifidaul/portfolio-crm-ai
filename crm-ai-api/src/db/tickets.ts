@@ -66,7 +66,10 @@ export async function updateTicket(
 }
 
 export async function getTicketById(ticketId: string): Promise<DbTicket | null> {
-  const { rows } = await pool.query("SELECT * FROM tickets WHERE ticket_id = $1", [ticketId]);
+  const { rows } = await pool.query(
+    `${TICKET_SELECT} WHERE t.ticket_id = $1`,
+    [ticketId]
+  );
   return rows[0] ?? null;
 }
 
@@ -76,13 +79,13 @@ export async function getTicketsByCustomer(
 ): Promise<DbTicket[]> {
   if (status) {
     const { rows } = await pool.query(
-      "SELECT * FROM tickets WHERE customer_id = $1 AND status = $2 ORDER BY created_at DESC",
+      `${TICKET_SELECT} WHERE t.customer_id = $1 AND t.status = $2 ORDER BY t.created_at DESC`,
       [customerId, status]
     );
     return rows;
   }
   const { rows } = await pool.query(
-    "SELECT * FROM tickets WHERE customer_id = $1 ORDER BY created_at DESC",
+    `${TICKET_SELECT} WHERE t.customer_id = $1 ORDER BY t.created_at DESC`,
     [customerId]
   );
   return rows;
@@ -90,22 +93,28 @@ export async function getTicketsByCustomer(
 
 export async function getOpenTickets(customerId: string): Promise<DbTicket[]> {
   const { rows } = await pool.query(
-    "SELECT * FROM tickets WHERE customer_id = $1 AND status IN ('open', 'pending') ORDER BY created_at DESC",
+    `${TICKET_SELECT} WHERE t.customer_id = $1 AND t.status IN ('open', 'pending') ORDER BY t.created_at DESC`,
     [customerId]
   );
   return rows;
 }
 
+const TICKET_SELECT = `
+  SELECT t.*, u.name AS customer_name
+  FROM tickets t
+  JOIN users u ON u.id = t.customer_id
+`
+
 export async function getAllTickets(status?: string): Promise<DbTicket[]> {
   if (status) {
     const { rows } = await pool.query(
-      "SELECT * FROM tickets WHERE status = $1 ORDER BY priority DESC, created_at DESC",
+      `${TICKET_SELECT} WHERE t.status = $1 ORDER BY t.priority DESC, t.created_at DESC`,
       [status]
     );
     return rows;
   }
   const { rows } = await pool.query(
-    "SELECT * FROM tickets ORDER BY priority DESC, created_at DESC"
+    `${TICKET_SELECT} ORDER BY t.priority DESC, t.created_at DESC`
   );
   return rows;
 }
