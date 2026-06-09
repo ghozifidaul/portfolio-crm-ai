@@ -4,6 +4,7 @@ import type {
   Ticket,
   Message,
   SendMessageResponse,
+  DirectMessageResponse,
   ConversationSummary,
 } from "./types";
 
@@ -40,6 +41,24 @@ export async function getMessages(
 
 export async function getConversations(): Promise<ConversationSummary[]> {
   return api("/api/conversations");
+}
+
+export async function sendDirectMessage(
+  customerId: string,
+  content: string,
+  sender: "customer" | "agent",
+): Promise<DirectMessageResponse> {
+  return api("/api/messages/direct", {
+    method: "POST",
+    body: JSON.stringify({ customer_id: customerId, content, sender }),
+  });
+}
+
+export async function getMessagesSince(
+  customerId: string,
+  since: string,
+): Promise<Message[]> {
+  return api(`/api/messages?customer_id=${customerId}&since=${encodeURIComponent(since)}`);
 }
 
 export async function sendMessage(

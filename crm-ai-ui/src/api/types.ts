@@ -48,3 +48,7 @@ export interface SendMessageResponse {
   ticket: Ticket | null
   ai_response: unknown
 }
+
+export interface DirectMessageResponse {
+  message: Message
+}
