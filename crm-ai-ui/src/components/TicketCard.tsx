@@ -60,13 +60,15 @@ export default function TicketCard({
         <span className="text-xs capitalize text-zinc-500">{ticket.category}</span>
       </div>
 
-      <div className="overflow-hidden">
-        {!expanded && (
-          <p className="mt-1 line-clamp-1 text-sm text-zinc-500">
-            {ticket.summary || "-"}
-          </p>
-        )}
-        {expanded && (
+      <p className="mt-1 line-clamp-1 text-sm text-zinc-500">
+        {ticket.summary || "-"}
+      </p>
+
+      <div
+        className="grid overflow-hidden transition-[grid-template-rows] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}
+      >
+        <div className="min-h-0">
           <div className="mt-3 space-y-3 pt-3">
             <Separator />
             <div>
@@ -106,7 +108,7 @@ export default function TicketCard({
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
     </Card>
   );
