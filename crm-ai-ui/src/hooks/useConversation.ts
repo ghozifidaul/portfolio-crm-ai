@@ -2,7 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { getMessages, getTicketsByCustomerId, sendMessage, getTicket } from "../api/requests";
 import type { Message, Ticket } from "../api/types";
 
-export function useConversation(customerId: string) {
+export function useConversation(
+  customerId: string,
+  sender: "agent" | "customer" = "agent",
+) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
@@ -36,7 +39,7 @@ export function useConversation(customerId: string) {
 
   const send = useCallback(
     async (content: string) => {
-      const res = await sendMessage(customerId, content, "agent");
+      const res = await sendMessage(customerId, content, sender);
       const msg = await getMessages(customerId, 1);
       setMessages((prev) => [...prev, ...msg]);
       if (res.ticket) {
@@ -64,5 +67,6 @@ export function useConversation(customerId: string) {
     retry: load,
     send,
     customerName,
+    ownSender: sender,
   };
 }

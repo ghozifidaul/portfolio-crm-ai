@@ -28,6 +28,7 @@ export default function ConversationPage() {
     retry,
     send,
     customerName,
+    ownSender,
   } = useConversation(customerId!);
 
   const [activeTicketId, setActiveTicketId] = useState<string | null>(null);
@@ -73,7 +74,7 @@ export default function ConversationPage() {
           )}
           {!loading && !error && (
             <>
-              <MessageList messages={messages} />
+              <MessageList messages={messages} ownSender={ownSender} />
               <ReplyInput onSend={send} disabled={false} />
             </>
           )}
