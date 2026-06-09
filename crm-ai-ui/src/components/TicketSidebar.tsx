@@ -28,20 +28,20 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function CompactCard({
+function TicketCard({
   ticket,
-  isActive,
-  onClick,
+  expanded,
+  onToggle,
 }: {
   ticket: Ticket;
-  isActive: boolean;
-  onClick: () => void;
+  expanded: boolean;
+  onToggle: () => void;
 }) {
   return (
     <div
-      onClick={onClick}
+      onClick={onToggle}
       className={`cursor-pointer rounded-lg border p-3 text-xs transition-colors ${
-        isActive
+        expanded
           ? "border-blue-300 bg-blue-50"
           : "border-gray-200 bg-white hover:bg-gray-100"
       }`}
@@ -52,65 +52,51 @@ function CompactCard({
           {priorityLabel[ticket.priority] || ticket.priority}
         </span>
       </div>
+
       <div className="mt-1 flex items-center gap-2">
         <StatusBadge status={ticket.status} />
         <span className="text-gray-500 capitalize">{ticket.category}</span>
       </div>
-      <p className="mt-1 line-clamp-1 text-gray-600">{ticket.summary || "—"}</p>
-    </div>
-  );
-}
 
-function TicketDetail({ ticket }: { ticket: Ticket }) {
-  return (
-    <div className="mt-4 space-y-3">
-      <div>
-        <p className="text-xs text-gray-500">Status</p>
-        <StatusBadge status={ticket.status} />
-      </div>
-      <div>
-        <p className="text-xs text-gray-500">Priority</p>
-        <p className="font-medium text-gray-900">
-          {priorityLabel[ticket.priority] || ticket.priority}
-        </p>
-      </div>
-      <div>
-        <p className="text-xs text-gray-500">Category</p>
-        <p className="font-medium capitalize text-gray-900">{ticket.category}</p>
-      </div>
-      <div>
-        <p className="text-xs text-gray-500">Summary</p>
-        <p className="text-gray-700">{ticket.summary || "—"}</p>
-      </div>
-      {ticket.entities.length > 0 && (
-        <div>
-          <p className="text-xs text-gray-500">Entities</p>
-          <div className="mt-1 flex flex-wrap gap-1">
-            {ticket.entities.map((e) => (
-              <span
-                key={e}
-                className="rounded bg-purple-100 px-2 py-0.5 text-xs text-purple-800"
-              >
-                {e}
-              </span>
-            ))}
+      {expanded ? (
+        <div className="mt-2 space-y-3 border-t border-blue-200 pt-2">
+          <div>
+            <p className="text-gray-500">Summary</p>
+            <p className="text-gray-700">{ticket.summary || "—"}</p>
           </div>
+          {ticket.entities.length > 0 && (
+            <div>
+              <p className="text-xs text-gray-500">Entities</p>
+              <div className="mt-1 flex flex-wrap gap-1">
+                {ticket.entities.map((e) => (
+                  <span
+                    key={e}
+                    className="rounded bg-purple-100 px-2 py-0.5 text-xs text-purple-800"
+                  >
+                    {e}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {ticket.tags.length > 0 && (
+            <div>
+              <p className="text-xs text-gray-500">Tags</p>
+              <div className="mt-1 flex flex-wrap gap-1">
+                {ticket.tags.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-700"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
-      {ticket.tags.length > 0 && (
-        <div>
-          <p className="text-xs text-gray-500">Tags</p>
-          <div className="mt-1 flex flex-wrap gap-1">
-            {ticket.tags.map((t) => (
-              <span
-                key={t}
-                className="rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-700"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        </div>
+      ) : (
+        <p className="mt-1 line-clamp-1 text-gray-600">{ticket.summary || "—"}</p>
       )}
     </div>
   );
@@ -142,8 +128,6 @@ export default function TicketSidebar({
 }) {
   if (loading) return <Skeleton />;
 
-  const activeTicket = tickets.find((t) => t.ticket_id === activeTicketId) || null;
-
   return (
     <div className="w-72 overflow-y-auto border-l border-gray-200 bg-gray-50 p-4 text-sm">
       <h3 className="mb-3 font-semibold text-gray-900">
@@ -156,16 +140,14 @@ export default function TicketSidebar({
 
       <div className="space-y-2">
         {tickets.map((t) => (
-          <CompactCard
+          <TicketCard
             key={t.ticket_id}
             ticket={t}
-            isActive={t.ticket_id === activeTicketId}
-            onClick={() => onSelectTicket(t.ticket_id)}
+            expanded={t.ticket_id === activeTicketId}
+            onToggle={() => onSelectTicket(t.ticket_id)}
           />
         ))}
       </div>
-
-      {activeTicket && <TicketDetail ticket={activeTicket} />}
     </div>
   );
 }
