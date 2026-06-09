@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getTickets } from "../api/requests";
+import { getTicketsByStatus } from "../api/requests";
 import type { Ticket } from "../api/types";
 
 export function useInbox() {
@@ -11,7 +11,7 @@ export function useInbox() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getTickets("open");
+      const data = await getTicketsByStatus("open");
       setTickets(data);
     } catch (err: any) {
       setError(err.message || "Failed to load tickets");

@@ -1,6 +1,7 @@
 export {
   login,
-  getTickets,
+  getTicketsByStatus,
+  getTicketsByCustomerId,
   getTicket,
   getMessages,
   sendMessage,

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getMessages, getTickets, sendMessage, getTicket } from "../api/requests";
+import { getMessages, getTicketsByCustomerId, sendMessage, getTicket } from "../api/requests";
 import type { Message, Ticket } from "../api/types";
 
 export function useConversation(customerId: string) {
@@ -15,7 +15,7 @@ export function useConversation(customerId: string) {
     try {
       const [msgs, tkts] = await Promise.all([
         getMessages(customerId),
-        getTickets(customerId),
+        getTicketsByCustomerId(customerId),
       ]);
       setMessages(msgs);
       setTickets(tkts);
