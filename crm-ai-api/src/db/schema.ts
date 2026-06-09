@@ -51,3 +51,13 @@ export interface ConversationEntry {
   content: string;
   timestamp: string;
 }
+
+export interface ConversationSummary {
+  customer_id: string;
+  customer_name: string;
+  last_message: string;
+  last_activity: string;
+  last_sender: string;
+  open_ticket_count: number;
+  worst_priority: string | null;
+}

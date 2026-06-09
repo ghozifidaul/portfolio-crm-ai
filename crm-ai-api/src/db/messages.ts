@@ -35,3 +35,54 @@ export async function getMessagesByTicket(ticketId: string): Promise<DbMessage[]
   );
   return rows;
 }
+
+export async function getConversations() {
+  const { rows } = await pool.query(`
+    WITH last_messages AS (
+      SELECT DISTINCT ON (customer_id)
+        customer_id,
+        content AS last_message,
+        timestamp AS last_activity,
+        sender AS last_sender
+      FROM messages
+      ORDER BY customer_id, timestamp DESC
+    ),
+    ticket_stats AS (
+      SELECT
+        customer_id,
+        COUNT(*) AS open_ticket_count,
+        MIN(CASE
+          WHEN priority = 'urgent' THEN 1
+          WHEN priority = 'high' THEN 2
+          WHEN priority = 'medium' THEN 3
+          WHEN priority = 'low' THEN 4
+          ELSE 5
+        END) AS priority_weight
+      FROM tickets
+      WHERE status IN ('open', 'pending')
+      GROUP BY customer_id
+    )
+    SELECT
+      lm.customer_id,
+      u.name AS customer_name,
+      lm.last_message,
+      lm.last_activity,
+      lm.last_sender,
+      COALESCE(ts.open_ticket_count, 0) AS open_ticket_count,
+      CASE ts.priority_weight
+        WHEN 1 THEN 'urgent'
+        WHEN 2 THEN 'high'
+        WHEN 3 THEN 'medium'
+        WHEN 4 THEN 'low'
+        ELSE NULL
+      END AS worst_priority
+    FROM last_messages lm
+    JOIN users u ON u.id = lm.customer_id
+    LEFT JOIN ticket_stats ts ON ts.customer_id = lm.customer_id
+    ORDER BY
+      CASE WHEN ts.priority_weight IS NOT NULL THEN 0 ELSE 1 END,
+      ts.priority_weight NULLS LAST,
+      lm.last_activity DESC
+  `);
+  return rows;
+}
