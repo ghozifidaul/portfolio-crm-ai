@@ -25,7 +25,11 @@ function timeAgo(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-export default function CustomerCard({ customer }: { customer: CustomerInbox }) {
+export default function CustomerCard({
+  customer,
+}: {
+  customer: CustomerInbox;
+}) {
   const navigate = useNavigate();
 
   return (
@@ -35,14 +39,19 @@ export default function CustomerCard({ customer }: { customer: CustomerInbox }) 
     >
       <div className="flex items-start justify-between">
         <h3 className="font-medium text-gray-900">{customer.customerName}</h3>
-        <span className={`text-xs font-medium ${priorityColors[customer.priority] || "text-gray-400"}`}>
-          {priorityLabel[customer.priority] || customer.priority} &middot; {customer.ticketCount} open
+        <span
+          className={`text-xs font-medium ${priorityColors[customer.priority] || "text-gray-400"}`}
+        >
+          {priorityLabel[customer.priority] || customer.priority} &middot;{" "}
+          {customer.ticketCount} open tickets
         </span>
       </div>
       <p className="mt-2 line-clamp-1 text-sm text-gray-500">
         {customer.preview}
       </p>
-      <p className="mt-1 text-xs text-gray-400">{timeAgo(customer.lastActivityAt)}</p>
+      <p className="mt-1 text-xs text-gray-400">
+        {timeAgo(customer.lastActivityAt)}
+      </p>
     </div>
   );
 }
