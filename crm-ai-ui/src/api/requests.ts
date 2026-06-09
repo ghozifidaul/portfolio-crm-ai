@@ -4,6 +4,7 @@ import type {
   Ticket,
   Message,
   SendMessageResponse,
+  ConversationSummary,
 } from "./types";
 
 export async function login(
@@ -35,6 +36,10 @@ export async function getMessages(
   limit = 50,
 ): Promise<Message[]> {
   return api(`/api/messages?customer_id=${customerId}&limit=${limit}`);
+}
+
+export async function getConversations(): Promise<ConversationSummary[]> {
+  return api("/api/conversations");
 }
 
 export async function sendMessage(

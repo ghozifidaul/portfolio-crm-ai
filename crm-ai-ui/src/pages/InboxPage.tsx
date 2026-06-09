@@ -47,7 +47,7 @@ export default function InboxPage() {
 
       {!loading && !error && customers.length === 0 && (
         <div className="py-12 text-center text-gray-400">
-          <p className="text-lg">No open tickets</p>
+          <p className="text-lg">No conversations yet</p>
         </div>
       )}
 

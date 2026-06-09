@@ -15,6 +15,16 @@ const priorityLabel: Record<string, string> = {
   low: "Low",
 };
 
+function badgeText(priority: string | null, ticketCount: number): string | null {
+  if (priority && ticketCount > 0) {
+    return `${priorityLabel[priority] || priority} · ${ticketCount} open ticket${ticketCount === 1 ? "" : "s"}`;
+  }
+  if (ticketCount > 0) {
+    return `${ticketCount} open ticket${ticketCount === 1 ? "" : "s"}`;
+  }
+  return null;
+}
+
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
@@ -31,6 +41,7 @@ export default function CustomerCard({
   customer: CustomerInbox;
 }) {
   const navigate = useNavigate();
+  const badge = badgeText(customer.priority, customer.ticketCount);
 
   return (
     <div
@@ -39,12 +50,13 @@ export default function CustomerCard({
     >
       <div className="flex items-start justify-between">
         <h3 className="font-medium text-gray-900">{customer.customerName}</h3>
-        <span
-          className={`text-xs font-medium ${priorityColors[customer.priority] || "text-gray-400"}`}
-        >
-          {priorityLabel[customer.priority] || customer.priority} &middot;{" "}
-          {customer.ticketCount} open tickets
-        </span>
+        {badge && (
+          <span
+            className={`text-xs font-medium ${customer.priority ? priorityColors[customer.priority] : "text-gray-400"}`}
+          >
+            {badge}
+          </span>
+        )}
       </div>
       <p className="mt-2 line-clamp-1 text-sm text-gray-500">
         {customer.preview}
