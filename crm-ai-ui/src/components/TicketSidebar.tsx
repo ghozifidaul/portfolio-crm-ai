@@ -1,8 +1,11 @@
-import { Ticket as TicketIcon } from "@phosphor-icons/react";
+import { TicketIcon } from "@phosphor-icons/react";
 import type { Ticket as TicketType } from "../api/types";
 import { Badge, Card, Skeleton, Separator } from "./ui";
 
-const priorityVariant: Record<string, "urgent" | "high" | "medium" | "low" | "default"> = {
+const priorityVariant: Record<
+  string,
+  "urgent" | "high" | "medium" | "low" | "default"
+> = {
   urgent: "urgent",
   high: "high",
   medium: "medium",
@@ -49,7 +52,10 @@ function TicketCard({
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-semibold text-zinc-100">{ticket.ticket_id}</span>
-        <Badge variant={priorityVariant[ticket.priority] ?? "default"} size="sm">
+        <Badge
+          variant={priorityVariant[ticket.priority] ?? "default"}
+          size="sm"
+        >
           {priorityLabel[ticket.priority] || ticket.priority}
         </Badge>
       </div>
@@ -58,7 +64,9 @@ function TicketCard({
         <Badge variant={statusVariant[ticket.status] ?? "default"} size="sm">
           {ticket.status}
         </Badge>
-        <span className="text-xs capitalize text-zinc-500">{ticket.category}</span>
+        <span className="text-xs capitalize text-zinc-500">
+          {ticket.category}
+        </span>
       </div>
 
       {expanded && (
@@ -66,7 +74,9 @@ function TicketCard({
           <Separator />
           <div>
             <p className="text-xs text-zinc-500">Summary</p>
-            <p className="mt-0.5 text-sm text-zinc-300">{ticket.summary || "-"}</p>
+            <p className="mt-0.5 text-sm text-zinc-300">
+              {ticket.summary || "-"}
+            </p>
           </div>
           {ticket.entities.length > 0 && (
             <div>
@@ -102,7 +112,9 @@ function TicketCard({
       )}
 
       {!expanded && (
-        <p className="mt-1 line-clamp-1 text-sm text-zinc-500">{ticket.summary || "-"}</p>
+        <p className="mt-1 line-clamp-1 text-sm text-zinc-500">
+          {ticket.summary || "-"}
+        </p>
       )}
     </Card>
   );
