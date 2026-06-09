@@ -1,8 +1,8 @@
 import { classifyMessage } from "./ai-service";
 import { findById } from "./db/users";
 import { createTicket, updateTicket, getOpenTickets, resolveTicket } from "./db/tickets";
-import { addMessage, getConversationHistory } from "./db/messages";
-import type { AITicket, ConversationEntry } from "./db/schema";
+import { addMessage, updateMessageTicket, getConversationHistory } from "./db/messages";
+import type { AITicket, ConversationEntry, DbMessage } from "./db/schema";
 import type { AIResponse } from "./ai-service";
 
 export interface MessageRouterResult {
@@ -21,6 +21,91 @@ export interface MessageRouterResult {
     resolved_at: string | null;
   } | null;
   ai_response: AIResponse;
+}
+
+export async function storeMessage(
+  customerId: string,
+  content: string,
+  sender: "customer" | "agent"
+): Promise<DbMessage> {
+  const customer = await findById(customerId);
+  if (!customer) {
+    throw Object.assign(new Error("Customer not found"), { status: 404 });
+  }
+
+  return await addMessage(customerId, null, sender, content, null);
+}
+
+export async function processInBackground(
+  customerId: string,
+  messageId: string,
+  content: string
+): Promise<void> {
+  try {
+    const dbMessages = await getConversationHistory(customerId);
+    const history: ConversationEntry[] = dbMessages.map((m) => ({
+      role: m.sender === "system" ? "system" : m.sender,
+      content: m.content,
+      timestamp: m.timestamp,
+    }));
+
+    const openDbTickets = await getOpenTickets(customerId);
+    const openTickets: AITicket[] = openDbTickets.map((t) => ({
+      ticket_id: t.ticket_id,
+      category: t.category,
+      priority: t.priority,
+      status: t.status,
+      summary: t.summary,
+      entities: t.entities,
+      tags: t.tags,
+      created_at: t.created_at,
+    }));
+
+    const aiResponse = await classifyMessage(openTickets, history, content);
+    if (!aiResponse) {
+      console.error("Background AI: classifyMessage returned null");
+      return;
+    }
+
+    switch (aiResponse.action) {
+      case "create": {
+        const ticket = await createTicket(customerId, aiResponse.fields);
+        await updateMessageTicket(messageId, ticket.ticket_id, "create");
+        break;
+      }
+
+      case "update": {
+        if (!aiResponse.ticket_id) {
+          console.error("Background AI: update action without ticket_id");
+          return;
+        }
+        await updateTicket(aiResponse.ticket_id, {
+          category: aiResponse.fields.category,
+          priority: aiResponse.fields.priority,
+          status: aiResponse.fields.status,
+          summary: aiResponse.fields.summary,
+          entities: aiResponse.fields.entities,
+          tags: aiResponse.fields.tags,
+        });
+        await updateMessageTicket(messageId, aiResponse.ticket_id, "update");
+
+        if (aiResponse.resolution_detected) {
+          await resolveTicket(aiResponse.ticket_id);
+        }
+        break;
+      }
+
+      case "no_action": {
+        await updateMessageTicket(messageId, null, "no_action");
+        break;
+      }
+
+      default:
+        console.error(`Background AI: unknown action ${aiResponse.action}`);
+    }
+  } catch (err) {
+    console.error("Background AI processing failed:", err);
+  }
 }
 
 export async function processMessage(
