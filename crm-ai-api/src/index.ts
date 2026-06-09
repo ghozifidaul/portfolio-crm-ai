@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { sign, jwt } from 'hono/jwt'
-import { findByUsername, getTicketsByCustomer, getAllTickets, getTicketById, getMessagesByTicket, getConversationHistory, getConversations } from './db'
-import { processMessage } from './message-router'
+import { findByUsername, getTicketsByCustomer, getAllTickets, getTicketById, getMessagesByTicket, getConversationHistory, getMessagesSince, getConversations } from './db'
+import { storeMessage, processInBackground, processMessage } from './message-router'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production'
 
@@ -73,15 +73,50 @@ app.post('/api/messages', authenticate, async (c) => {
   }
 })
 
+app.post('/api/messages/direct', authenticate, async (c) => {
+  const { customer_id, content, sender } = await c.req.json()
+  const payload = c.get('jwtPayload') as { sub?: string; role?: string }
+
+  if (!customer_id || !content || !sender) {
+    return c.json({ error: 'customer_id, content, and sender are required' }, 400)
+  }
+
+  if (sender !== 'customer' && sender !== 'agent') {
+    return c.json({ error: 'sender must be "customer" or "agent"' }, 400)
+  }
+
+  if (sender === 'customer' && payload.sub !== customer_id) {
+    return c.json({ error: 'Customers can only send messages as themselves' }, 403)
+  }
+
+  if (sender === 'agent' && payload.role !== 'agent') {
+    return c.json({ error: 'Only agents can send messages as agent' }, 403)
+  }
+
+  try {
+    const message = await storeMessage(customer_id, content, sender)
+    processInBackground(customer_id, message.message_id, content).catch((err) =>
+      console.error('Background AI failed:', err),
+    )
+    return c.json({ message })
+  } catch (err: any) {
+    const status = err.status || 500
+    return c.json({ error: err.message }, status)
+  }
+})
+
 app.get('/api/messages', authenticate, async (c) => {
   const customerId = c.req.query('customer_id')
   const limit = parseInt(c.req.query('limit') || '50', 10)
+  const since = c.req.query('since')
 
   if (!customerId) {
     return c.json({ error: 'customer_id query parameter is required' }, 400)
   }
 
-  const messages = await getConversationHistory(customerId, limit)
+  const messages = since
+    ? await getMessagesSince(customerId, since)
+    : await getConversationHistory(customerId, limit)
   return c.json(messages)
 })
 
