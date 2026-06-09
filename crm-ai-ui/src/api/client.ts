@@ -1,4 +1,4 @@
-const BASE = ''
+const BASE = import.meta.env.VITE_API_BASE ?? ''
 
 function getToken(): string | null {
   return localStorage.getItem('token')
