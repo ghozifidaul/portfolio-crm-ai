@@ -17,6 +17,19 @@ export async function addMessage(
   return rows[0];
 }
 
+export async function updateMessageTicket(
+  messageId: string,
+  ticketId: string | null,
+  aiAction: string
+): Promise<DbMessage | null> {
+  const { rows } = await pool.query(
+    `UPDATE messages SET ticket_id = $2, ai_action_taken = $3
+     WHERE message_id = $1 RETURNING *`,
+    [messageId, ticketId, aiAction]
+  );
+  return rows[0] ?? null;
+}
+
 export async function getConversationHistory(
   customerId: string,
   limit = 50
@@ -24,6 +37,17 @@ export async function getConversationHistory(
   const { rows } = await pool.query(
     "SELECT * FROM messages WHERE customer_id = $1 ORDER BY timestamp ASC LIMIT $2",
     [customerId, limit]
+  );
+  return rows;
+}
+
+export async function getMessagesSince(
+  customerId: string,
+  since: string
+): Promise<DbMessage[]> {
+  const { rows } = await pool.query(
+    "SELECT * FROM messages WHERE customer_id = $1 AND timestamp > $2 ORDER BY timestamp ASC",
+    [customerId, since]
   );
   return rows;
 }

@@ -8,7 +8,7 @@ export {
   getAllTickets,
   resolveTicket,
 } from "./tickets";
-export { addMessage, getConversationHistory, getMessagesByTicket, getConversations } from "./messages";
+export { addMessage, updateMessageTicket, getConversationHistory, getMessagesSince, getMessagesByTicket, getConversations } from "./messages";
 export type {
   DbUser,
   DbTicket,
