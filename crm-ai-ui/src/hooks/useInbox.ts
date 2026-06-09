@@ -39,6 +39,26 @@ export function useInbox() {
 
   useEffect(() => {
     load();
+
+    const interval = setInterval(async () => {
+      try {
+        const data = await getConversations();
+        setCustomers(
+          data.map((c) => ({
+            customerId: c.customer_id,
+            customerName: c.customer_name,
+            ticketCount: c.open_ticket_count,
+            priority: c.worst_priority,
+            preview: c.last_message,
+            lastActivityAt: c.last_activity,
+          })),
+        );
+      } catch {
+        /* silent */
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return { customers, loading, error, retry: load };
