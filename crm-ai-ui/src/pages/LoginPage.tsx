@@ -2,6 +2,7 @@ import { useState, type SubmitEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
 import { getUserRole } from '../api/client'
+import { Card, Input, Button } from '../components/ui'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')
@@ -18,43 +19,42 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm">
-        <h1 className="mb-6 text-xl font-semibold text-gray-900">Agent Login</h1>
+    <div className="flex min-h-screen items-center justify-center bg-zinc-950">
+      <Card className="w-full max-w-sm p-8">
+        <h1 className="mb-1 text-xl font-semibold tracking-tight text-zinc-100">
+          CRM AI
+        </h1>
+        <p className="mb-6 text-sm text-zinc-500">
+          Sign in to your account
+        </p>
 
-        <div className="mb-4">
-          <label className="mb-1 block text-sm font-medium text-gray-700">Username</label>
-          <input
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <Input
+            label="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-400"
             placeholder="agent1"
             required
           />
-        </div>
 
-        <div className="mb-4">
-          <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
-          <input
+          <Input
+            label="Password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-400"
             placeholder="password123"
             required
           />
-        </div>
 
-        {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="text-sm text-red-400" role="alert">{error}</p>
+          )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 hover:bg-gray-800"
-        >
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
+          <Button type="submit" loading={loading} className="w-full">
+            Login
+          </Button>
+        </form>
+      </Card>
     </div>
   )
 }

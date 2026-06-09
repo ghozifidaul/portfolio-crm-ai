@@ -1,18 +1,18 @@
-import { Link } from 'react-router'
+import { useNavigate } from 'react-router'
+import { Card, Button } from '../components/ui'
 
 export default function UnauthorizedPage() {
+  const navigate = useNavigate()
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm rounded-xl bg-white p-8 text-center shadow-sm">
-        <h1 className="mb-2 text-xl font-semibold text-gray-900">Access Denied</h1>
-        <p className="mb-6 text-sm text-gray-600">This portal is for agents only.</p>
-        <Link
-          to="/login"
-          className="inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-        >
+    <div className="flex min-h-screen items-center justify-center bg-zinc-950">
+      <Card className="w-full max-w-sm p-8 text-center">
+        <h1 className="mb-2 text-xl font-semibold text-zinc-100">Access Denied</h1>
+        <p className="mb-6 text-sm text-zinc-500">This portal is for agents only.</p>
+        <Button onClick={() => navigate('/login')}>
           Back to Login
-        </Link>
-      </div>
+        </Button>
+      </Card>
     </div>
   )
 }

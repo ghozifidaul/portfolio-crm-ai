@@ -4,18 +4,7 @@ import { useConversation } from "../hooks/useConversation";
 import MessageList from "../components/MessageList";
 import ReplyInput from "../components/ReplyInput";
 import TicketSidebar from "../components/TicketSidebar";
-
-function Skeleton() {
-  return (
-    <div className="flex flex-1 flex-col gap-3 p-4">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="flex" style={{ justifyContent: i % 2 === 0 ? "flex-end" : "flex-start" }}>
-          <div className={`h-12 w-2/3 animate-pulse rounded-2xl bg-gray-100 ${i % 2 === 0 ? "rounded-br-md" : "rounded-bl-md"}`} />
-        </div>
-      ))}
-    </div>
-  );
-}
+import { Button, Skeleton } from "../components/ui";
 
 export default function ConversationPage() {
   const { customerId } = useParams<{ customerId: string }>();
@@ -43,32 +32,48 @@ export default function ConversationPage() {
   }, [tickets, activeTicketId]);
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="flex items-center gap-3 border-b border-gray-200 bg-white px-4 py-3">
-        <button
-          onClick={() => navigate("/inbox")}
-          className="text-sm text-gray-500 hover:text-gray-800"
-        >
+    <div className="flex min-h-[100dvh] flex-col bg-zinc-950">
+      <header className="flex items-center gap-3 border-b border-zinc-800 bg-zinc-950 px-4 py-3">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/inbox")}>
           &larr; Back
-        </button>
-        <h1 className="text-base font-semibold text-gray-900">
+        </Button>
+        <h1 className="text-base font-semibold text-zinc-100">
           {customerName}
         </h1>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
         <div className="flex flex-1 flex-col">
-          {loading && <Skeleton />}
+          {loading && (
+            <div className="flex flex-1 flex-col gap-3 p-4">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="flex"
+                  style={{ justifyContent: i % 2 === 0 ? "flex-end" : "flex-start" }}
+                >
+                  <Skeleton
+                    shape="card"
+                    width="60%"
+                    height="48px"
+                    className={i % 2 === 0 ? "rounded-br-md" : "rounded-bl-md"}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
           {error && (
             <div className="flex flex-1 items-center justify-center">
-              <div className="text-center">
-                <p className="text-sm text-red-600">{error}</p>
-                <button
+              <div className="rounded-lg bg-red-900/50 p-4 text-center text-sm text-red-300">
+                <p>{error}</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={retry}
-                  className="mt-2 text-sm font-medium text-red-700 underline"
+                  className="mt-2 text-red-300"
                 >
                   Retry
-                </button>
+                </Button>
               </div>
             </div>
           )}

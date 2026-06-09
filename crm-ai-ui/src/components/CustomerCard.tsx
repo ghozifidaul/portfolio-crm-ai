@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router";
 import type { CustomerInbox } from "../hooks/useInbox";
+import { Card, Badge } from "./ui";
 
-const priorityColors: Record<string, string> = {
-  urgent: "text-red-600",
-  high: "text-orange-500",
-  medium: "text-yellow-600",
-  low: "text-gray-400",
+const priorityVariant: Record<string, "urgent" | "high" | "medium" | "low" | "default"> = {
+  urgent: "urgent",
+  high: "high",
+  medium: "medium",
+  low: "low",
 };
 
 const priorityLabel: Record<string, string> = {
@@ -20,10 +21,10 @@ function badgeText(
   ticketCount: number,
 ): string | null {
   if (priority && ticketCount > 0) {
-    return `${priorityLabel[priority] || priority} · ${ticketCount} open ticket${ticketCount === 1 ? "" : "s"}`;
+    return `${priorityLabel[priority] || priority} · ${ticketCount} ticket${ticketCount === 1 ? "" : "s"}`;
   }
   if (ticketCount > 0) {
-    return `${ticketCount} open ticket${ticketCount === 1 ? "" : "s"}`;
+    return `${ticketCount} ticket${ticketCount === 1 ? "" : "s"}`;
   }
   return null;
 }
@@ -47,26 +48,33 @@ export default function CustomerCard({
   const badge = badgeText(customer.priority, customer.ticketCount);
 
   return (
-    <div
+    <Card
+      hover
+      tabIndex={0}
+      role="button"
       onClick={() => navigate(`/conversation/${customer.customerId}`)}
-      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:bg-gray-50"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          navigate(`/conversation/${customer.customerId}`);
+        }
+      }}
+      className="cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
     >
       <div className="flex items-start justify-between">
-        <h3 className="font-medium text-gray-900">{customer.customerName}</h3>
+        <h3 className="text-sm font-medium text-zinc-100">{customer.customerName}</h3>
         {badge && (
-          <span
-            className={`text-xs font-medium ${customer.priority ? priorityColors[customer.priority] : "text-gray-400"}`}
-          >
+          <Badge variant={priorityVariant[customer.priority ?? ""] ?? "default"} size="sm">
             {badge}
-          </span>
+          </Badge>
         )}
       </div>
-      <p className="mt-2 line-clamp-1 text-sm text-gray-500">
+      <p className="mt-1.5 line-clamp-1 text-sm text-zinc-400">
         {customer.preview}
       </p>
-      <p className="mt-1 text-xs text-gray-400">
+      <p className="mt-1 text-xs text-zinc-500">
         {timeAgo(customer.lastActivityAt)}
       </p>
-    </div>
+    </Card>
   );
 }

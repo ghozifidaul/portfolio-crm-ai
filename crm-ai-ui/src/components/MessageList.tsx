@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { ChatDots } from "@phosphor-icons/react";
 import type { Message } from "../api/types";
 import MessageBubble from "./MessageBubble";
 
@@ -17,8 +18,9 @@ export default function MessageList({
 
   if (messages.length === 0) {
     return (
-      <div className="flex flex-1 items-center justify-center text-sm text-gray-400">
-        No messages yet
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 text-sm text-zinc-500">
+        <ChatDots size={36} className="text-zinc-700" />
+        <p>No messages yet</p>
       </div>
     );
   }

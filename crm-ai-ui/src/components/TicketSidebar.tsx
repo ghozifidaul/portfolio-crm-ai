@@ -1,10 +1,12 @@
-import type { Ticket } from "../api/types";
+import { Ticket as TicketIcon } from "@phosphor-icons/react";
+import type { Ticket as TicketType } from "../api/types";
+import { Badge, Card, Skeleton, Separator } from "./ui";
 
-const priorityColors: Record<string, string> = {
-  urgent: "text-red-600 bg-red-50",
-  high: "text-orange-600 bg-orange-50",
-  medium: "text-yellow-600 bg-yellow-50",
-  low: "text-gray-500 bg-gray-100",
+const priorityVariant: Record<string, "urgent" | "high" | "medium" | "low" | "default"> = {
+  urgent: "urgent",
+  high: "high",
+  medium: "medium",
+  low: "low",
 };
 
 const priorityLabel: Record<string, string> = {
@@ -14,64 +16,66 @@ const priorityLabel: Record<string, string> = {
   low: "Low",
 };
 
-function StatusBadge({ status }: { status: string }) {
-  const cls =
-    status === "open"
-      ? "bg-green-100 text-green-800"
-      : status === "pending"
-        ? "bg-amber-100 text-amber-800"
-        : "bg-gray-200 text-gray-600";
-  return (
-    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>
-      {status}
-    </span>
-  );
-}
+const statusVariant: Record<string, "default" | "urgent" | "medium" | "low"> = {
+  open: "default",
+  pending: "medium",
+  closed: "low",
+};
 
 function TicketCard({
   ticket,
   expanded,
   onToggle,
 }: {
-  ticket: Ticket;
+  ticket: TicketType;
   expanded: boolean;
   onToggle: () => void;
 }) {
   return (
-    <div
+    <Card
+      hover
+      tabIndex={0}
+      role="button"
       onClick={onToggle}
-      className={`cursor-pointer rounded-lg border p-3 text-xs transition-colors ${
-        expanded
-          ? "border-blue-300 bg-blue-50"
-          : "border-gray-200 bg-white hover:bg-gray-100"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onToggle();
+        }
+      }}
+      className={`cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${
+        expanded ? "border-blue-600" : ""
       }`}
     >
-      <div className="flex items-center justify-between">
-        <span className="font-semibold text-gray-900">{ticket.ticket_id}</span>
-        <span className={priorityColors[ticket.priority] || ""}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-semibold text-zinc-100">{ticket.ticket_id}</span>
+        <Badge variant={priorityVariant[ticket.priority] ?? "default"} size="sm">
           {priorityLabel[ticket.priority] || ticket.priority}
-        </span>
+        </Badge>
       </div>
 
-      <div className="mt-1 flex items-center gap-2">
-        <StatusBadge status={ticket.status} />
-        <span className="text-gray-500 capitalize">{ticket.category}</span>
+      <div className="mt-1.5 flex items-center gap-2">
+        <Badge variant={statusVariant[ticket.status] ?? "default"} size="sm">
+          {ticket.status}
+        </Badge>
+        <span className="text-xs capitalize text-zinc-500">{ticket.category}</span>
       </div>
 
-      {expanded ? (
-        <div className="mt-2 space-y-3 border-t border-blue-200 pt-2">
+      {expanded && (
+        <div className="mt-3 space-y-3 pt-3">
+          <Separator />
           <div>
-            <p className="text-gray-500">Summary</p>
-            <p className="text-gray-700">{ticket.summary || "—"}</p>
+            <p className="text-xs text-zinc-500">Summary</p>
+            <p className="mt-0.5 text-sm text-zinc-300">{ticket.summary || "-"}</p>
           </div>
           {ticket.entities.length > 0 && (
             <div>
-              <p className="text-xs text-gray-500">Entities</p>
+              <p className="text-xs text-zinc-500">Entities</p>
               <div className="mt-1 flex flex-wrap gap-1">
                 {ticket.entities.map((e) => (
                   <span
                     key={e}
-                    className="rounded bg-purple-100 px-2 py-0.5 text-xs text-purple-800"
+                    className="rounded-md bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300"
                   >
                     {e}
                   </span>
@@ -81,12 +85,12 @@ function TicketCard({
           )}
           {ticket.tags.length > 0 && (
             <div>
-              <p className="text-xs text-gray-500">Tags</p>
+              <p className="text-xs text-zinc-500">Tags</p>
               <div className="mt-1 flex flex-wrap gap-1">
                 {ticket.tags.map((t) => (
                   <span
                     key={t}
-                    className="rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-700"
+                    className="rounded-md bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400"
                   >
                     {t}
                   </span>
@@ -95,23 +99,12 @@ function TicketCard({
             </div>
           )}
         </div>
-      ) : (
-        <p className="mt-1 line-clamp-1 text-gray-600">{ticket.summary || "—"}</p>
       )}
-    </div>
-  );
-}
 
-function Skeleton() {
-  return (
-    <div className="w-72 border-l border-gray-200 bg-gray-50 p-4">
-      <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
-      <div className="mt-4 space-y-2">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-3 animate-pulse rounded bg-gray-200" />
-        ))}
-      </div>
-    </div>
+      {!expanded && (
+        <p className="mt-1 line-clamp-1 text-sm text-zinc-500">{ticket.summary || "-"}</p>
+      )}
+    </Card>
   );
 }
 
@@ -121,21 +114,32 @@ export default function TicketSidebar({
   onSelectTicket,
   loading,
 }: {
-  tickets: Ticket[];
+  tickets: TicketType[];
   activeTicketId: string | null;
   onSelectTicket: (ticketId: string) => void;
   loading: boolean;
 }) {
-  if (loading) return <Skeleton />;
+  if (loading) {
+    return (
+      <div className="flex w-72 flex-col gap-3 border-l border-zinc-800 bg-zinc-950 p-4">
+        <Skeleton shape="text" width="60%" />
+        <Skeleton shape="card" />
+        <Skeleton shape="card" />
+      </div>
+    );
+  }
 
   return (
-    <div className="w-72 overflow-y-auto border-l border-gray-200 bg-gray-50 p-4 text-sm">
-      <h3 className="mb-3 font-semibold text-gray-900">
+    <div className="flex w-72 flex-col gap-3 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 text-sm">
+      <h3 className="text-sm font-semibold text-zinc-100">
         Tickets ({tickets.length})
       </h3>
 
       {tickets.length === 0 && (
-        <p className="text-sm text-gray-400">No open tickets</p>
+        <div className="flex flex-col items-center gap-2 py-8 text-sm text-zinc-500">
+          <TicketIcon size={28} className="text-zinc-700" />
+          <p>No open tickets</p>
+        </div>
       )}
 
       <div className="space-y-2">

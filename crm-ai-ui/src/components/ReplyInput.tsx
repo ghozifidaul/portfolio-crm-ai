@@ -1,4 +1,5 @@
 import { useState, type FormEvent, useRef, useEffect } from "react";
+import { Button } from "./ui";
 
 export default function ReplyInput({
   onSend,
@@ -33,7 +34,7 @@ export default function ReplyInput({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-end gap-2 border-t border-gray-200 bg-white p-4"
+      className="flex items-end gap-2 border-t border-zinc-800 bg-zinc-950 p-4"
     >
       <textarea
         ref={textareaRef}
@@ -48,15 +49,16 @@ export default function ReplyInput({
         placeholder="Type a reply..."
         rows={1}
         disabled={disabled}
-        className="max-h-32 min-h-[36px] flex-1 resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-400 disabled:opacity-50"
+        className="max-h-32 min-h-[36px] flex-1 resize-none rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none transition-colors focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
       />
-      <button
+      <Button
         type="submit"
+        size="md"
         disabled={!text.trim() || sending || disabled}
-        className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-40 hover:bg-gray-800"
+        loading={sending}
       >
-        {sending ? "..." : "Send"}
-      </button>
+        Send
+      </Button>
     </form>
   );
 }
