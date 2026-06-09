@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
 import { isAuthenticated } from './api/client'
 import LoginPage from './pages/LoginPage'
+import InboxPage from './pages/InboxPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   if (!isAuthenticated()) return <Navigate to="/login" replace />
@@ -17,7 +18,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<RedirectIfAuth><LoginPage /></RedirectIfAuth>} />
-        <Route path="/inbox" element={<RequireAuth><div>Inbox page</div></RequireAuth>} />
+        <Route path="/inbox" element={<RequireAuth><InboxPage /></RequireAuth>} />
         <Route path="/conversation/:customerId" element={<RequireAuth><div>Conversation page</div></RequireAuth>} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

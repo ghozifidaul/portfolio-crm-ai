@@ -6,6 +6,7 @@ export interface LoginResponse {
 export interface Ticket {
   ticket_id: string
   customer_id: string
+  customer_name?: string
   channel: string
   category: string
   priority: string
