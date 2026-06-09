@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useConversation } from "../hooks/useConversation";
 import MessageList from "../components/MessageList";
@@ -21,13 +22,24 @@ export default function ConversationPage() {
   const navigate = useNavigate();
   const {
     messages,
-    activeTicket,
+    tickets,
     loading,
     error,
     retry,
     send,
     customerName,
   } = useConversation(customerId!);
+
+  const [activeTicketId, setActiveTicketId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!activeTicketId && tickets.length > 0) {
+      const first = tickets.find(
+        (t) => t.status === "open" || t.status === "pending",
+      );
+      setActiveTicketId(first?.ticket_id || tickets[0].ticket_id);
+    }
+  }, [tickets, activeTicketId]);
 
   return (
     <div className="flex h-screen flex-col">
@@ -66,7 +78,12 @@ export default function ConversationPage() {
             </>
           )}
         </div>
-        <TicketSidebar ticket={activeTicket} loading={loading} />
+        <TicketSidebar
+          tickets={tickets}
+          activeTicketId={activeTicketId}
+          onSelectTicket={setActiveTicketId}
+          loading={loading}
+        />
       </div>
     </div>
   );
