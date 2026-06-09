@@ -1,6 +1,53 @@
+import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { useInbox } from "../hooks/useInbox";
-import TicketCard from "../components/TicketCard";
+import type { CustomerInbox } from "../hooks/useInbox";
+
+const priorityColors: Record<string, string> = {
+  urgent: "text-red-600",
+  high: "text-orange-500",
+  medium: "text-yellow-600",
+  low: "text-gray-400",
+};
+
+const priorityLabel: Record<string, string> = {
+  urgent: "Urgent",
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+};
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
+function CustomerCard({ customer }: { customer: CustomerInbox }) {
+  const navigate = useNavigate();
+
+  return (
+    <div
+      onClick={() => navigate(`/conversation/${customer.customerId}`)}
+      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:bg-gray-50"
+    >
+      <div className="flex items-start justify-between">
+        <h3 className="font-medium text-gray-900">{customer.customerName}</h3>
+        <span className={`text-xs font-medium ${priorityColors[customer.priority] || "text-gray-400"}`}>
+          {priorityLabel[customer.priority] || customer.priority} &middot; {customer.ticketCount} open
+        </span>
+      </div>
+      <p className="mt-2 line-clamp-1 text-sm text-gray-500">
+        {customer.preview}
+      </p>
+      <p className="mt-1 text-xs text-gray-400">{timeAgo(customer.lastActivityAt)}</p>
+    </div>
+  );
+}
 
 function Skeleton() {
   return (
@@ -14,7 +61,7 @@ function Skeleton() {
 
 export default function InboxPage() {
   const { logout } = useAuth();
-  const { tickets, loading, error, retry } = useInbox();
+  const { customers, loading, error, retry } = useInbox();
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
@@ -45,16 +92,16 @@ export default function InboxPage() {
         </div>
       )}
 
-      {!loading && !error && tickets.length === 0 && (
+      {!loading && !error && customers.length === 0 && (
         <div className="py-12 text-center text-gray-400">
           <p className="text-lg">No open tickets</p>
         </div>
       )}
 
-      {!loading && !error && tickets.length > 0 && (
+      {!loading && !error && customers.length > 0 && (
         <div className="space-y-3">
-          {tickets.map((t) => (
-            <TicketCard key={t.ticket_id} ticket={t} />
+          {customers.map((c) => (
+            <CustomerCard key={c.customerId} customer={c} />
           ))}
         </div>
       )}
