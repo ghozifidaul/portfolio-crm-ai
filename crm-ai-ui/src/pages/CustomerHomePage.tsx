@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { getUser } from "../api/client";
 import { useConversation } from "../hooks/useConversation";
@@ -23,17 +22,6 @@ export default function CustomerHomePage() {
     customerName,
     ownSender,
   } = useConversation(user!.id, "customer", true);
-
-  const [activeTicketId, setActiveTicketId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!activeTicketId && tickets.length > 0) {
-      const first = tickets.find(
-        (t) => t.status === "open" || t.status === "pending",
-      );
-      setActiveTicketId(first?.ticket_id || tickets[0].ticket_id);
-    }
-  }, [tickets, activeTicketId]);
 
   function handleLogout() {
     logout();
@@ -93,12 +81,7 @@ export default function CustomerHomePage() {
             </>
           )}
         </div>
-        <TicketSidebar
-          tickets={tickets}
-          activeTicketId={activeTicketId}
-          onSelectTicket={setActiveTicketId}
-          loading={loading}
-        />
+        <TicketSidebar tickets={tickets} loading={loading} />
       </div>
     </div>
   );

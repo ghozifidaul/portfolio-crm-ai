@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { TicketIcon } from "@phosphor-icons/react";
 import type { Ticket as TicketType } from "../api/types";
 import { Skeleton } from "./ui";
@@ -5,15 +6,25 @@ import TicketCard from "./TicketCard";
 
 export default function TicketSidebar({
   tickets,
-  activeTicketId,
-  onSelectTicket,
   loading,
 }: {
   tickets: TicketType[];
-  activeTicketId: string | null;
-  onSelectTicket: (ticketId: string) => void;
   loading: boolean;
 }) {
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  function handleToggle(ticketId: string) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(ticketId)) {
+        next.delete(ticketId);
+      } else {
+        next.add(ticketId);
+      }
+      return next;
+    });
+  }
+
   if (loading) {
     return (
       <div className="flex w-72 flex-col gap-3 border-l border-zinc-800 bg-zinc-950 p-4">
@@ -42,8 +53,8 @@ export default function TicketSidebar({
           <TicketCard
             key={t.ticket_id}
             ticket={t}
-            expanded={t.ticket_id === activeTicketId}
-            onToggle={() => onSelectTicket(t.ticket_id)}
+            expanded={expandedIds.has(t.ticket_id)}
+            onToggle={() => handleToggle(t.ticket_id)}
           />
         ))}
       </div>
