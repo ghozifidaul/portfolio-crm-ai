@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
+import { getUserRole } from '../api/client'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')
@@ -11,7 +12,9 @@ export default function LoginPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     const ok = await login(username, password)
-    if (ok) navigate('/inbox', { replace: true })
+    if (ok) {
+      navigate(getUserRole() === 'agent' ? '/inbox' : '/home', { replace: true })
+    }
   }
 
   return (

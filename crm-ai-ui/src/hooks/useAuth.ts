@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { setToken, clearToken, isAuthenticated } from '../api/client'
+import { setToken, clearToken, isAuthenticated, setUser, getUser } from '../api/client'
 import { login as loginApi } from '../api/requests'
 
 export function useAuth() {
@@ -12,6 +12,7 @@ export function useAuth() {
     try {
       const res = await loginApi(username, password)
       setToken(res.token)
+      setUser(res.user)
       return true
     } catch (err: any) {
       const msg = err.message === 'Unauthorized' ? 'Invalid username or password' : err.message
@@ -26,5 +27,7 @@ export function useAuth() {
     clearToken()
   }, [])
 
-  return { login, logout, loading, error, isAuthenticated: isAuthenticated() }
+  const user = getUser()
+
+  return { login, logout, loading, error, isAuthenticated: isAuthenticated(), role: user?.role ?? null }
 }
