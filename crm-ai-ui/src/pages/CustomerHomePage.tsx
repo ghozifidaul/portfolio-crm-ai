@@ -33,7 +33,7 @@ export default function CustomerHomePage() {
     send,
     customerName,
     ownSender,
-  } = useConversation(user!.id, "customer");
+  } = useConversation(user!.id, "customer", true);
 
   const [activeTicketId, setActiveTicketId] = useState<string | null>(null);
 

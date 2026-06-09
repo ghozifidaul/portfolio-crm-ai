@@ -1,16 +1,25 @@
-import { useState, useEffect, useCallback } from "react";
-import { getMessages, getTicketsByCustomerId, sendMessage, getTicket } from "../api/requests";
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  getMessages,
+  getMessagesSince,
+  getTicketsByCustomerId,
+  sendMessage,
+  sendDirectMessage,
+  getTicket,
+} from "../api/requests";
 import type { Message, Ticket } from "../api/types";
 
 export function useConversation(
   customerId: string,
   sender: "agent" | "customer" = "agent",
+  direct = false,
 ) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const lastTimestampRef = useRef<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -22,6 +31,9 @@ export function useConversation(
       ]);
       setMessages(msgs);
       setTickets(tkts);
+      if (msgs.length > 0) {
+        lastTimestampRef.current = msgs[msgs.length - 1].timestamp;
+      }
       const firstOpen = tkts.find(
         (t) => t.status === "open" || t.status === "pending",
       );
@@ -37,22 +49,51 @@ export function useConversation(
     load();
   }, [customerId]);
 
+  useEffect(() => {
+    if (!direct) return;
+    const interval = setInterval(async () => {
+      if (!lastTimestampRef.current) return;
+      try {
+        const newMsgs = await getMessagesSince(customerId, lastTimestampRef.current);
+        if (newMsgs.length > 0) {
+          lastTimestampRef.current = newMsgs[newMsgs.length - 1].timestamp;
+          setMessages((prev) => {
+            const existing = new Set(prev.map((m) => m.message_id));
+            const unique = newMsgs.filter((m) => !existing.has(m.message_id));
+            return unique.length > 0 ? [...prev, ...unique] : prev;
+          });
+          const tkts = await getTicketsByCustomerId(customerId);
+          setTickets(tkts);
+        }
+      } catch {
+        // polling errors silently ignored
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [direct, customerId]);
+
   const send = useCallback(
     async (content: string) => {
-      const res = await sendMessage(customerId, content, sender);
-      const msg = await getMessages(customerId, 1);
-      setMessages((prev) => [...prev, ...msg]);
-      if (res.ticket) {
-        setActiveTicket(res.ticket);
-        const refreshed = await getTicket(res.ticket.ticket_id);
-        setTickets((prev) =>
-          prev.map((t) =>
-            t.ticket_id === refreshed.ticket_id ? refreshed : t,
-          ),
-        );
+      if (direct) {
+        const res = await sendDirectMessage(customerId, content, sender);
+        setMessages((prev) => [...prev, res.message]);
+        lastTimestampRef.current = res.message.timestamp;
+      } else {
+        const res = await sendMessage(customerId, content, sender);
+        const msg = await getMessages(customerId, 1);
+        setMessages((prev) => [...prev, ...msg]);
+        if (res.ticket) {
+          setActiveTicket(res.ticket);
+          const refreshed = await getTicket(res.ticket.ticket_id);
+          setTickets((prev) =>
+            prev.map((t) =>
+              t.ticket_id === refreshed.ticket_id ? refreshed : t,
+            ),
+          );
+        }
       }
     },
-    [customerId],
+    [customerId, sender, direct],
   );
 
   const customerName =

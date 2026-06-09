@@ -29,7 +29,7 @@ export default function ConversationPage() {
     send,
     customerName,
     ownSender,
-  } = useConversation(customerId!);
+  } = useConversation(customerId!, "agent", true);
 
   const [activeTicketId, setActiveTicketId] = useState<string | null>(null);
 
