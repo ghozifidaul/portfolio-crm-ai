@@ -1,0 +1,15 @@
+# deps
+node_modules/
+
+# secrets
+.env
+
+# generated outputs
+TEST_RESULT.json
+
+# os
+.DS_Store
+*.log
+
+# build
+dist/

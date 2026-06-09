@@ -1,0 +1,366 @@
+[
+  {
+    "id": "TC-001",
+    "name": "New customer, billing issue",
+    "description": "No open tickets. Customer reports a double charge on their account.",
+    "expected_action": "create",
+    "expected_fields": {
+      "category": "billing",
+      "priority": "high",
+      "resolution_detected": false
+    },
+    "open_tickets_json": [],
+    "conversation_history": [
+      {
+        "role": "customer",
+        "content": "Halo, saya ada masalah dengan tagihan bulan ini. Sepertinya ada double charge.",
+        "timestamp": "2024-01-15T10:34:00Z"
+      }
+    ],
+    "latest_message": "Halo, saya ada masalah dengan tagihan bulan ini. Sepertinya ada double charge."
+  },
+  {
+    "id": "TC-002",
+    "name": "Follow-up on existing ticket",
+    "description": "1 open billing ticket. Customer provides the invoice number as requested by agent.",
+    "expected_action": "update",
+    "expected_fields": {
+      "ticket_id": "TKT-3847",
+      "category": "billing",
+      "match_confidence_min": 0.85,
+      "entities": ["INV-2024-0892", "INV-2024-0901"],
+      "resolution_detected": false
+    },
+    "open_tickets_json": [
+      {
+        "ticket_id": "TKT-3847",
+        "category": "billing",
+        "priority": "high",
+        "status": "open",
+        "summary": "Customer reports possible double charge on their account.",
+        "entities": [],
+        "tags": ["double-charge"],
+        "created_at": "2024-01-15T10:34:00Z"
+      }
+    ],
+    "conversation_history": [
+      {
+        "role": "customer",
+        "content": "Halo, saya ada masalah dengan tagihan bulan ini. Sepertinya ada double charge.",
+        "timestamp": "2024-01-15T10:34:00Z"
+      },
+      {
+        "role": "agent",
+        "content": "Halo! Saya bantu cek sekarang ya. Boleh saya tahu invoice nomor berapa yang dimaksud?",
+        "timestamp": "2024-01-15T10:35:00Z"
+      }
+    ],
+    "latest_message": "Invoice #INV-2024-0892 dan #INV-2024-0901, keduanya Rp 450.000."
+  },
+  {
+    "id": "TC-003",
+    "name": "Multiple tickets, ambiguous message",
+    "description": "2 open tickets (billing + technical). Customer sends a vague follow-up with no clear topic signal.",
+    "expected_action": "ambiguous",
+    "expected_fields": {
+      "match_confidence_max": 0.85,
+      "resolution_detected": false
+    },
+    "open_tickets_json": [
+      {
+        "ticket_id": "TKT-3847",
+        "category": "billing",
+        "priority": "high",
+        "status": "open",
+        "summary": "Customer reports double charge on invoices INV-2024-0892 and INV-2024-0901.",
+        "entities": ["INV-2024-0892", "INV-2024-0901"],
+        "tags": ["double-charge"],
+        "created_at": "2024-01-15T10:34:00Z"
+      },
+      {
+        "ticket_id": "TKT-3851",
+        "category": "technical",
+        "priority": "medium",
+        "status": "open",
+        "summary": "Customer unable to log in to their account after password reset.",
+        "entities": [],
+        "tags": ["login", "password-reset"],
+        "created_at": "2024-01-14T09:10:00Z"
+      }
+    ],
+    "conversation_history": [
+      {
+        "role": "customer",
+        "content": "Halo, ada update ga?",
+        "timestamp": "2024-01-15T14:00:00Z"
+      }
+    ],
+    "latest_message": "Halo, ada update ga?"
+  },
+  {
+    "id": "TC-004",
+    "name": "Multiple tickets, clear new issue",
+    "description": "2 open tickets (billing + technical). Customer raises a completely unrelated shipping problem with a new order reference.",
+    "expected_action": "create",
+    "expected_fields": {
+      "category": "shipping",
+      "entities": ["ORD-8812"],
+      "resolution_detected": false
+    },
+    "open_tickets_json": [
+      {
+        "ticket_id": "TKT-3847",
+        "category": "billing",
+        "priority": "high",
+        "status": "open",
+        "summary": "Customer reports double charge on invoices INV-2024-0892 and INV-2024-0901.",
+        "entities": ["INV-2024-0892", "INV-2024-0901"],
+        "tags": ["double-charge"],
+        "created_at": "2024-01-15T10:34:00Z"
+      },
+      {
+        "ticket_id": "TKT-3851",
+        "category": "technical",
+        "priority": "medium",
+        "status": "open",
+        "summary": "Customer unable to log in to their account after password reset.",
+        "entities": [],
+        "tags": ["login", "password-reset"],
+        "created_at": "2024-01-14T09:10:00Z"
+      }
+    ],
+    "conversation_history": [
+      {
+        "role": "customer",
+        "content": "Halo, ada update untuk masalah billing saya?",
+        "timestamp": "2024-01-15T14:00:00Z"
+      },
+      {
+        "role": "agent",
+        "content": "Masih kami proses ya Pak, harap sabar.",
+        "timestamp": "2024-01-15T14:02:00Z"
+      }
+    ],
+    "latest_message": "Oke. Oh btw, saya juga mau tanya soal pengiriman paket order #ORD-8812, sudah seminggu belum sampai."
+  },
+  {
+    "id": "TC-005",
+    "name": "Resolution detected",
+    "description": "1 open billing ticket. Customer explicitly confirms the problem is solved after agent processes the refund.",
+    "expected_action": "update",
+    "expected_fields": {
+      "ticket_id": "TKT-3847",
+      "status": "resolved",
+      "resolution_detected": true
+    },
+    "open_tickets_json": [
+      {
+        "ticket_id": "TKT-3847",
+        "category": "billing",
+        "priority": "high",
+        "status": "open",
+        "summary": "Customer reports double charge on invoices INV-2024-0892 and INV-2024-0901.",
+        "entities": ["INV-2024-0892", "INV-2024-0901"],
+        "tags": ["double-charge"],
+        "created_at": "2024-01-15T10:34:00Z"
+      }
+    ],
+    "conversation_history": [
+      {
+        "role": "customer",
+        "content": "Halo, ada masalah dengan tagihan saya, double charge.",
+        "timestamp": "2024-01-15T10:34:00Z"
+      },
+      {
+        "role": "agent",
+        "content": "Baik, kami sudah proses refund sebesar Rp 450.000 ke akun Anda. Akan masuk dalam 1-3 hari kerja.",
+        "timestamp": "2024-01-15T10:50:00Z"
+      }
+    ],
+    "latest_message": "Oke terima kasih banyak ya, sudah beres sekarang!"
+  },
+  {
+    "id": "TC-006",
+    "name": "Customer acknowledgement mid-conversation",
+    "description": "1 open billing ticket. Customer sends a short acknowledgement while the agent is actively handling the issue.",
+    "expected_action": "update",
+    "expected_fields": {
+      "ticket_id": "TKT-3847",
+      "resolution_detected": false
+    },
+    "open_tickets_json": [
+      {
+        "ticket_id": "TKT-3847",
+        "category": "billing",
+        "priority": "high",
+        "status": "open",
+        "summary": "Customer reports double charge on invoice INV-2024-0892.",
+        "entities": ["INV-2024-0892"],
+        "tags": ["double-charge"],
+        "created_at": "2024-01-15T10:34:00Z"
+      }
+    ],
+    "conversation_history": [
+      {
+        "role": "customer",
+        "content": "Invoice saya #INV-2024-0892 kena double charge.",
+        "timestamp": "2024-01-15T10:34:00Z"
+      },
+      {
+        "role": "agent",
+        "content": "Baik, sedang saya cek.",
+        "timestamp": "2024-01-15T10:36:00Z"
+      }
+    ],
+    "latest_message": "Ok, makasih. Satu menit ya."
+  },
+  {
+    "id": "TC-007",
+    "name": "Entity match overrides topic ambiguity",
+    "description": "2 open tickets (billing + shipping). Customer references an invoice number that is already logged in the billing ticket — entity match should resolve the ambiguity.",
+    "expected_action": "update",
+    "expected_fields": {
+      "ticket_id": "TKT-3847",
+      "category": "billing",
+      "match_confidence_min": 0.85,
+      "resolution_detected": false
+    },
+    "open_tickets_json": [
+      {
+        "ticket_id": "TKT-3847",
+        "category": "billing",
+        "priority": "high",
+        "status": "open",
+        "summary": "Customer reports double charge on invoice INV-2024-0892.",
+        "entities": ["INV-2024-0892"],
+        "tags": ["double-charge"],
+        "created_at": "2024-01-15T10:34:00Z"
+      },
+      {
+        "ticket_id": "TKT-3860",
+        "category": "shipping",
+        "priority": "medium",
+        "status": "open",
+        "summary": "Customer reports delayed delivery on order ORD-9921.",
+        "entities": ["ORD-9921"],
+        "tags": ["late-delivery"],
+        "created_at": "2024-01-15T11:00:00Z"
+      }
+    ],
+    "conversation_history": [
+      {
+        "role": "customer",
+        "content": "Ada dua masalah yang saya laporkan tadi.",
+        "timestamp": "2024-01-15T13:00:00Z"
+      },
+      {
+        "role": "agent",
+        "content": "Baik, yang mana dulu yang ingin Anda tanyakan?",
+        "timestamp": "2024-01-15T13:01:00Z"
+      }
+    ],
+    "latest_message": "Yang soal invoice INV-2024-0892, sudah ada progresnya belum?"
+  },
+  {
+    "id": "TC-008",
+    "name": "Escalation mid-conversation",
+    "description": "1 open general ticket. Tone escalates significantly — customer is now angry and threatens to cancel. Priority should be upgraded to urgent.",
+    "expected_action": "update",
+    "expected_fields": {
+      "ticket_id": "TKT-3900",
+      "priority": "urgent",
+      "resolution_detected": false
+    },
+    "open_tickets_json": [
+      {
+        "ticket_id": "TKT-3900",
+        "category": "general",
+        "priority": "low",
+        "status": "open",
+        "summary": "Customer asking about account subscription options.",
+        "entities": [],
+        "tags": ["subscription"],
+        "created_at": "2024-01-15T09:00:00Z"
+      }
+    ],
+    "conversation_history": [
+      {
+        "role": "customer",
+        "content": "Halo, saya mau tanya soal opsi berlangganan.",
+        "timestamp": "2024-01-15T09:00:00Z"
+      },
+      {
+        "role": "agent",
+        "content": "Tentu, ada paket Basic, Pro, dan Enterprise. Mau info yang mana?",
+        "timestamp": "2024-01-15T09:02:00Z"
+      },
+      {
+        "role": "customer",
+        "content": "Saya sudah tanya ini 3 kali minggu lalu dan tidak ada yang membantu.",
+        "timestamp": "2024-01-15T09:05:00Z"
+      }
+    ],
+    "latest_message": "Ini pelayanan terburuk yang pernah saya alami. Kalau tidak ada yang bantu sekarang, saya akan cancel langganan dan minta refund penuh!"
+  },
+  {
+    "id": "TC-009",
+    "name": "Agent closing message triggers resolution",
+    "description": "1 open technical ticket. Agent sends a clear wrap-up message. AI should detect resolution from the agent side, not customer.",
+    "expected_action": "update",
+    "expected_fields": {
+      "ticket_id": "TKT-3851",
+      "status": "resolved",
+      "resolution_detected": true
+    },
+    "open_tickets_json": [
+      {
+        "ticket_id": "TKT-3851",
+        "category": "technical",
+        "priority": "medium",
+        "status": "open",
+        "summary": "Customer unable to log in after password reset.",
+        "entities": [],
+        "tags": ["login", "password-reset"],
+        "created_at": "2024-01-14T09:10:00Z"
+      }
+    ],
+    "conversation_history": [
+      {
+        "role": "customer",
+        "content": "Saya tidak bisa login setelah reset password.",
+        "timestamp": "2024-01-14T09:10:00Z"
+      },
+      {
+        "role": "agent",
+        "content": "Coba clear cache browser Anda lalu login ulang.",
+        "timestamp": "2024-01-14T09:15:00Z"
+      },
+      {
+        "role": "customer",
+        "content": "Berhasil! Sekarang sudah bisa masuk.",
+        "timestamp": "2024-01-14T09:18:00Z"
+      }
+    ],
+    "latest_message": "Senang bisa membantu! Tiket ini saya tutup ya. Jika ada masalah lain, jangan ragu untuk menghubungi kami kembali."
+  },
+  {
+    "id": "TC-010",
+    "name": "No match, vague message, no open tickets",
+    "description": "No open tickets. Customer sends a vague greeting with no identifiable issue. AI should create a general ticket or hold.",
+    "expected_action": "no_action",
+    "expected_fields": {
+      "category": "general",
+      "priority": "low",
+      "resolution_detected": false
+    },
+    "open_tickets_json": [],
+    "conversation_history": [
+      {
+        "role": "customer",
+        "content": "Halo",
+        "timestamp": "2024-01-15T15:00:00Z"
+      }
+    ],
+    "latest_message": "Halo"
+  }
+]

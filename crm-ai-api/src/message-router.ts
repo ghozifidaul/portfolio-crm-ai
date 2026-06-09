@@ -1,0 +1,121 @@
+import { classifyMessage } from "./ai-service";
+import { findById } from "./db/users";
+import { createTicket, updateTicket, getOpenTickets, resolveTicket } from "./db/tickets";
+import { addMessage, getConversationHistory } from "./db/messages";
+import type { AITicket, ConversationEntry } from "./db/schema";
+import type { AIResponse } from "./ai-service";
+
+export interface MessageRouterResult {
+  action: string;
+  ticket: {
+    ticket_id: string;
+    customer_id: string;
+    category: string;
+    priority: string;
+    status: string;
+    summary: string;
+    entities: string[];
+    tags: string[];
+    created_at: string;
+    updated_at: string;
+    resolved_at: string | null;
+  } | null;
+  ai_response: AIResponse;
+}
+
+export async function processMessage(
+  customerId: string,
+  content: string,
+  sender: "customer" | "agent"
+): Promise<MessageRouterResult> {
+  const customer = await findById(customerId);
+  if (!customer) {
+    throw Object.assign(new Error("Customer not found"), { status: 404 });
+  }
+
+  const dbMessages = await getConversationHistory(customerId);
+  const history: ConversationEntry[] = dbMessages.map((m) => ({
+    role: m.sender === "system" ? "system" : m.sender,
+    content: m.content,
+    timestamp: m.timestamp,
+  }));
+
+  const openDbTickets = await getOpenTickets(customerId);
+  const openTickets: AITicket[] = openDbTickets.map((t) => ({
+    ticket_id: t.ticket_id,
+    category: t.category,
+    priority: t.priority,
+    status: t.status,
+    summary: t.summary,
+    entities: t.entities,
+    tags: t.tags,
+    created_at: t.created_at,
+  }));
+
+  const aiResponse = await classifyMessage(openTickets, history, content);
+  if (!aiResponse) {
+    throw Object.assign(new Error("AI service returned no response"), { status: 503 });
+  }
+
+  switch (aiResponse.action) {
+    case "create": {
+      const ticket = await createTicket(customerId, aiResponse.fields);
+      await addMessage(customerId, ticket.ticket_id, sender, content, "create");
+      return { action: "create", ticket: serializeTicket(ticket), ai_response: aiResponse };
+    }
+
+    case "update": {
+      if (!aiResponse.ticket_id) {
+        throw Object.assign(new Error("AI returned update action without ticket_id"), { status: 400 });
+      }
+      const updated = await updateTicket(aiResponse.ticket_id, {
+        category: aiResponse.fields.category,
+        priority: aiResponse.fields.priority,
+        status: aiResponse.fields.status,
+        summary: aiResponse.fields.summary,
+        entities: aiResponse.fields.entities,
+        tags: aiResponse.fields.tags,
+      });
+      if (!updated) {
+        throw Object.assign(new Error(`Ticket ${aiResponse.ticket_id} not found`), { status: 400 });
+      }
+      await addMessage(customerId, aiResponse.ticket_id, sender, content, "update");
+
+      if (aiResponse.resolution_detected) {
+        const resolved = await resolveTicket(aiResponse.ticket_id);
+        return { action: "update", ticket: serializeTicket(resolved!), ai_response: aiResponse };
+      }
+
+      return { action: "update", ticket: serializeTicket(updated), ai_response: aiResponse };
+    }
+
+    case "no_action": {
+      await addMessage(customerId, null, sender, content, "no_action");
+      return { action: "no_action", ticket: null, ai_response: aiResponse };
+    }
+
+    default:
+      throw Object.assign(new Error(`Unknown AI action: ${aiResponse.action}`), { status: 500 });
+  }
+}
+
+function serializeTicket(t: {
+  ticket_id: string; customer_id: string; category: string;
+  priority: string; status: string; summary: string;
+  entities: string[]; tags: string[];
+  created_at: string; updated_at: string; resolved_at: string | null;
+}) {
+  return {
+    ticket_id: t.ticket_id,
+    customer_id: t.customer_id,
+    category: t.category,
+    priority: t.priority,
+    status: t.status,
+    summary: t.summary,
+    entities: t.entities,
+    tags: t.tags,
+    created_at: t.created_at,
+    updated_at: t.updated_at,
+    resolved_at: t.resolved_at,
+  };
+}
