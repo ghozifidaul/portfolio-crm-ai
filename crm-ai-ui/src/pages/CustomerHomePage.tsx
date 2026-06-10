@@ -29,7 +29,7 @@ export default function CustomerHomePage() {
   }
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-zinc-950">
+    <div className="flex h-[100dvh] flex-col bg-zinc-950">
       <header className="flex items-center justify-between border-b border-zinc-800 bg-zinc-950 px-4 py-3">
         <h1 className="text-base font-semibold text-zinc-100">
           Hi, {user?.name || customerName}!
@@ -40,7 +40,7 @@ export default function CustomerHomePage() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col overflow-hidden">
           {loading && (
             <div className="flex flex-1 flex-col gap-3 p-4">
               {[1, 2, 3].map((i) => (

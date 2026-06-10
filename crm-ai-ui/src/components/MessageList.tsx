@@ -26,7 +26,7 @@ export default function MessageList({
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
       {messages.map((m) => (
         <MessageBubble key={m.message_id} message={m} ownSender={ownSender} />
       ))}
