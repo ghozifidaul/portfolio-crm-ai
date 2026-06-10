@@ -20,7 +20,7 @@ export default function ConversationPage() {
   } = useConversation(customerId!, "agent", true);
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-zinc-950">
+    <div className="flex h-[100dvh] flex-col bg-zinc-950">
       <header className="flex items-center gap-3 border-b border-zinc-800 bg-zinc-950 px-4 py-3">
         <Button variant="ghost" size="sm" onClick={() => navigate("/inbox")}>
           &larr; Back
@@ -31,7 +31,7 @@ export default function ConversationPage() {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col overflow-hidden">
           {loading && (
             <div className="flex flex-1 flex-col gap-3 p-4">
               {[1, 2, 3].map((i) => (
