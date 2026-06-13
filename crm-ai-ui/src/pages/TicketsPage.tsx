@@ -5,7 +5,7 @@ import { getTicketsByStatus } from "../api/requests";
 import type { Ticket as TicketType } from "../api/types";
 import { Card, Badge, Skeleton } from "../components/ui";
 
-const statusFilters = ["open", "pending", "resolved"] as const;
+const statusFilters = ["all", "open", "pending", "resolved"] as const;
 
 const priorityVariant: Record<string, "urgent" | "high" | "medium" | "low" | "default"> = {
   urgent: "urgent",
@@ -30,7 +30,7 @@ export default function TicketsPage() {
     async function load() {
       setLoading(true);
       try {
-        const data = await getTicketsByStatus(filter);
+        const data = await getTicketsByStatus(filter === "all" ? undefined : filter);
         setTickets(data);
       } catch {
         /* silent */
@@ -56,7 +56,7 @@ export default function TicketsPage() {
                 : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200"
             }`}
           >
-            {s.charAt(0).toUpperCase() + s.slice(1)}
+            {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
           </button>
         ))}
       </div>
@@ -72,7 +72,7 @@ export default function TicketsPage() {
       {!loading && tickets.length === 0 && (
         <div className="flex flex-col items-center gap-3 py-16 text-center">
           <Ticket size={40} className="text-zinc-700" />
-          <p className="text-sm text-zinc-500">No {filter} tickets</p>
+          <p className="text-sm text-zinc-500">{filter === "all" ? "No tickets" : `No ${filter} tickets`}</p>
         </div>
       )}
 

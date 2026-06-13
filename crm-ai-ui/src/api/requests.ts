@@ -19,8 +19,9 @@ export async function login(
   });
 }
 
-export async function getTicketsByStatus(status: string): Promise<Ticket[]> {
-  return api(`/api/tickets?status=${status}`);
+export async function getTicketsByStatus(status?: string): Promise<Ticket[]> {
+  const qs = status ? `?status=${status}` : "";
+  return api(`/api/tickets${qs}`);
 }
 
 export async function getTicketsByCustomerId(
