@@ -68,7 +68,7 @@ export default function ConversationPage() {
           )}
           {!loading && !error && (
             <>
-              <MessageList messages={messages} ownSender={ownSender} />
+              <MessageList messages={messages} ownSender={ownSender} customerName={customerName} />
               <ReplyInput onSend={send} disabled={false} />
             </>
           )}

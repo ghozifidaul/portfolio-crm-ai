@@ -6,9 +6,11 @@ import MessageBubble from "./MessageBubble";
 export default function MessageList({
   messages,
   ownSender,
+  customerName,
 }: {
   messages: Message[];
   ownSender?: string;
+  customerName?: string;
 }) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -28,7 +30,7 @@ export default function MessageList({
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
       {messages.map((m) => (
-        <MessageBubble key={m.message_id} message={m} ownSender={ownSender} />
+        <MessageBubble key={m.message_id} message={m} ownSender={ownSender} customerName={customerName} />
       ))}
       <div ref={bottomRef} />
     </div>
