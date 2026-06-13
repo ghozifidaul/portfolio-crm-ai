@@ -7,6 +7,7 @@ import {
 } from "@phosphor-icons/react";
 import { getUser } from "../api/client";
 import { useAuth } from "../hooks/useAuth";
+import { Avatar } from "./ui";
 
 const navItems = [
   { label: "Dashboard", path: "/dashboard", icon: Gauge },
@@ -56,9 +57,12 @@ export default function Sidebar() {
       </nav>
 
       <div className="border-t border-zinc-800 px-3 py-3">
-        <div className="mb-2 px-3 py-2">
-          <p className="text-sm font-medium text-zinc-100">{user?.name}</p>
-          <p className="text-xs text-zinc-500 capitalize">{user?.role}</p>
+        <div className="mb-2 flex items-center gap-3 px-3 py-2">
+          <Avatar name={user?.name ?? "U"} size="sm" />
+          <div>
+            <p className="text-sm font-medium text-zinc-100">{user?.name}</p>
+            <p className="text-xs text-zinc-500 capitalize">{user?.role}</p>
+          </div>
         </div>
         <button
           onClick={handleLogout}
