@@ -4,7 +4,10 @@ import LoginPage from "./pages/LoginPage";
 import InboxPage from "./pages/InboxPage";
 import ConversationPage from "./pages/ConversationPage";
 import CustomerHomePage from "./pages/CustomerHomePage";
+import DashboardPage from "./pages/DashboardPage";
+import TicketsPage from "./pages/TicketsPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
+import AppShell from "./components/AppShell";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   if (!isAuthenticated()) return <Navigate to="/login" replace />;
@@ -19,7 +22,7 @@ function RequireAgent({ children }: { children: React.ReactNode }) {
 function RedirectIfAuth({ children }: { children: React.ReactNode }) {
   if (isAuthenticated()) {
     const role = getUserRole();
-    if (role === "agent") return <Navigate to="/inbox" replace />;
+    if (role === "agent") return <Navigate to="/dashboard" replace />;
     return <Navigate to="/home" replace />;
   }
   return <>{children}</>;
@@ -36,25 +39,19 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<RedirectIfAuth><LoginPage /></RedirectIfAuth>} />
         <Route
-          path="/inbox"
           element={
             <RequireAuth>
               <RequireAgent>
-                <InboxPage />
+                <AppShell />
               </RequireAgent>
             </RequireAuth>
           }
-        />
-        <Route
-          path="/conversation/:customerId"
-          element={
-            <RequireAuth>
-              <RequireAgent>
-                <ConversationPage />
-              </RequireAgent>
-            </RequireAuth>
-          }
-        />
+        >
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/inbox" element={<InboxPage />} />
+          <Route path="/inbox/:customerId" element={<ConversationPage />} />
+          <Route path="/tickets" element={<TicketsPage />} />
+        </Route>
         <Route
           path="/home"
           element={

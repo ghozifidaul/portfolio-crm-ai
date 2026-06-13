@@ -7,6 +7,7 @@ export {
   getOpenTickets,
   getAllTickets,
   resolveTicket,
+  getDashboardStats,
 } from "./tickets";
 export { addMessage, updateMessageTicket, getConversationHistory, getMessagesSince, getMessagesByTicket, getConversations } from "./messages";
 export type {

@@ -1,26 +1,14 @@
 import { ChatTeardropDots } from "@phosphor-icons/react";
-import { useAuth } from "../hooks/useAuth";
 import { useInbox } from "../hooks/useInbox";
 import CustomerCard from "../components/CustomerCard";
 import { Button, Skeleton } from "../components/ui";
 
 export default function InboxPage() {
-  const { logout } = useAuth();
   const { customers, loading, error, retry } = useInbox();
 
-  function handleLogout() {
-    logout();
-    window.location.href = "/login";
-  }
-
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-zinc-100">Inbox</h1>
-        <Button variant="ghost" size="sm" onClick={handleLogout}>
-          Logout
-        </Button>
-      </div>
+    <div className="flex-1 overflow-y-auto p-6">
+      <h1 className="mb-6 text-lg font-semibold text-zinc-100">Inbox</h1>
 
       {loading && (
         <div className="space-y-3">

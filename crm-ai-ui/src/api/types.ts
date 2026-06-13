@@ -52,3 +52,11 @@ export interface SendMessageResponse {
 export interface DirectMessageResponse {
   message: Message
 }
+
+export interface DashboardStats {
+  byStatus: { status: string; count: number }[];
+  byPriority: { priority: string; count: number }[];
+  recentTickets: Ticket[];
+  totalMessages: number;
+  activeConversations: number;
+}

@@ -119,6 +119,47 @@ export async function getAllTickets(status?: string): Promise<DbTicket[]> {
   return rows;
 }
 
+export async function getDashboardStats() {
+  const { rows: byStatus } = await pool.query(`
+    SELECT status, COUNT(*)::int AS count
+    FROM tickets
+    GROUP BY status
+  `);
+
+  const { rows: byPriority } = await pool.query(`
+    SELECT priority, COUNT(*)::int AS count
+    FROM tickets
+    WHERE status IN ('open', 'pending')
+    GROUP BY priority
+  `);
+
+  const { rows: recentTickets } = await pool.query(`
+    SELECT t.*, u.name AS customer_name
+    FROM tickets t
+    JOIN users u ON u.id = t.customer_id
+    ORDER BY t.updated_at DESC
+    LIMIT 10
+  `);
+
+  const { rows: msgCountResult } = await pool.query(`
+    SELECT COUNT(*)::int AS count FROM messages
+  `);
+
+  const { rows: activeResult } = await pool.query(`
+    SELECT COUNT(DISTINCT customer_id)::int AS count
+    FROM messages
+    WHERE timestamp > NOW() - INTERVAL '24 hours'
+  `);
+
+  return {
+    byStatus,
+    byPriority,
+    recentTickets,
+    totalMessages: msgCountResult[0]?.count ?? 0,
+    activeConversations: activeResult[0]?.count ?? 0,
+  };
+}
+
 export async function resolveTicket(ticketId: string): Promise<DbTicket | null> {
   const { rows } = await pool.query(
     `UPDATE tickets SET status = 'resolved', resolved_at = NOW(), updated_at = NOW()

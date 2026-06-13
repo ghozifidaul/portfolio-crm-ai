@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router";
+import { ArrowLeft } from "@phosphor-icons/react";
 import { useConversation } from "../hooks/useConversation";
 import MessageList from "../components/MessageList";
 import ReplyInput from "../components/ReplyInput";
@@ -20,10 +21,10 @@ export default function ConversationPage() {
   } = useConversation(customerId!, "agent", true);
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-zinc-950">
+    <div className="flex h-full flex-col">
       <header className="flex items-center gap-3 border-b border-zinc-800 bg-zinc-950 px-4 py-3">
         <Button variant="ghost" size="sm" onClick={() => navigate("/inbox")}>
-          &larr; Back
+          <ArrowLeft size={16} />
         </Button>
         <h1 className="text-base font-semibold text-zinc-100">
           {customerName}

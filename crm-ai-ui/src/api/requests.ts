@@ -6,6 +6,7 @@ import type {
   SendMessageResponse,
   DirectMessageResponse,
   ConversationSummary,
+  DashboardStats,
 } from "./types";
 
 export async function login(
@@ -59,6 +60,10 @@ export async function getMessagesSince(
   since: string,
 ): Promise<Message[]> {
   return api(`/api/messages?customer_id=${customerId}&since=${encodeURIComponent(since)}`);
+}
+
+export async function getDashboardStats(): Promise<DashboardStats> {
+  return api("/api/dashboard/stats");
 }
 
 export async function sendMessage(

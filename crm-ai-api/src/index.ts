@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { sign, jwt } from 'hono/jwt'
-import { findByUsername, getTicketsByCustomer, getAllTickets, getTicketById, getMessagesByTicket, getConversationHistory, getMessagesSince, getConversations } from './db'
+import { findByUsername, getTicketsByCustomer, getAllTickets, getTicketById, getMessagesByTicket, getConversationHistory, getMessagesSince, getConversations, getDashboardStats } from './db'
 import { storeMessage, processInBackground, processMessage } from './message-router'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-in-production'
@@ -139,6 +139,16 @@ app.get('/api/conversations', authenticate, async (c) => {
 
   const conversations = await getConversations()
   return c.json(conversations)
+})
+
+app.get('/api/dashboard/stats', authenticate, async (c) => {
+  const payload = c.get('jwtPayload') as { role?: string }
+  if (payload.role !== 'agent') {
+    return c.json({ error: 'Forbidden' }, 403)
+  }
+
+  const stats = await getDashboardStats()
+  return c.json(stats)
 })
 
 app.get('/api/tickets/:id', authenticate, async (c) => {

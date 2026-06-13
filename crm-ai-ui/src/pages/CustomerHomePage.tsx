@@ -4,7 +4,6 @@ import { useConversation } from "../hooks/useConversation";
 import { useAuth } from "../hooks/useAuth";
 import MessageList from "../components/MessageList";
 import ReplyInput from "../components/ReplyInput";
-import TicketSidebar from "../components/TicketSidebar";
 import { Button, Skeleton } from "../components/ui";
 
 export default function CustomerHomePage() {
@@ -14,7 +13,6 @@ export default function CustomerHomePage() {
 
   const {
     messages,
-    tickets,
     loading,
     error,
     retry,
@@ -39,9 +37,8 @@ export default function CustomerHomePage() {
         </Button>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {loading && (
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {loading && (
             <div className="flex flex-1 flex-col gap-3 p-4">
               {[1, 2, 3].map((i) => (
                 <div
@@ -81,8 +78,6 @@ export default function CustomerHomePage() {
             </>
           )}
         </div>
-        <TicketSidebar tickets={tickets} loading={loading} />
-      </div>
     </div>
   );
 }
