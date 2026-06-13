@@ -12,6 +12,7 @@ export default function TicketSidebar({
   loading: boolean;
 }) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const openTickets = tickets.filter((t) => t.status !== "resolved");
 
   function handleToggle(ticketId: string) {
     setExpandedIds((prev) => {
@@ -38,10 +39,10 @@ export default function TicketSidebar({
   return (
     <div className="flex w-72 flex-col gap-3 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 text-sm">
       <h3 className="text-sm font-semibold text-zinc-100">
-        Tickets ({tickets.length})
+        Tickets ({openTickets.length})
       </h3>
 
-      {tickets.length === 0 && (
+      {openTickets.length === 0 && (
         <div className="flex flex-col items-center gap-2 py-8 text-sm text-zinc-500">
           <TicketIcon size={28} className="text-zinc-700" />
           <p>No open tickets</p>
@@ -49,7 +50,7 @@ export default function TicketSidebar({
       )}
 
       <div className="space-y-2">
-        {tickets.map((t) => (
+        {openTickets.map((t) => (
           <TicketCard
             key={t.ticket_id}
             ticket={t}
