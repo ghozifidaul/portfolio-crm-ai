@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import {
   Ticket,
   ClockCountdown,
@@ -40,6 +41,7 @@ function findCount(arr: { status?: string; priority?: string; count: number }[],
 }
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -120,7 +122,20 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-2">
               {stats.recentTickets.map((t) => (
-                <Card key={t.ticket_id}>
+                <Card
+                  key={t.ticket_id}
+                  hover
+                  tabIndex={0}
+                  role="button"
+                  onClick={() => navigate(`/inbox/${t.customer_id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      navigate(`/inbox/${t.customer_id}`);
+                    }
+                  }}
+                  className="cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-zinc-100">
                       {t.ticket_id}

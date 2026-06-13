@@ -52,11 +52,11 @@ export default function CustomerCard({
       hover
       tabIndex={0}
       role="button"
-      onClick={() => navigate(`/conversation/${customer.customerId}`)}
+      onClick={() => navigate(`/inbox/${customer.customerId}`)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          navigate(`/conversation/${customer.customerId}`);
+          navigate(`/inbox/${customer.customerId}`);
         }
       }}
       className="cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
