@@ -5,3 +5,4 @@ export { Badge } from "./Badge";
 export { Skeleton } from "./Skeleton";
 export { Avatar } from "./Avatar";
 export { Separator } from "./Separator";
+export { ChartCard } from "./ChartCard";
