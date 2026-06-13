@@ -1,18 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import {
-  Ticket,
-  ClockCountdown,
-  CheckCircle,
-  WarningCircle,
-  ChatDots,
-  Users,
-} from "@phosphor-icons/react";
+import { ChatDots, Users } from "@phosphor-icons/react";
 import { getDashboardStats } from "../api/requests";
 import type { DashboardStats } from "../api/types";
-import { Card, Skeleton } from "../components/ui";
+import { Card, Skeleton, ChartCard } from "../components/ui";
+import StatusDonut from "../components/charts/StatusDonut";
+import PriorityBar from "../components/charts/PriorityBar";
 
-function StatCard({
+function KpiCard({
   icon,
   label,
   value,
@@ -24,20 +19,16 @@ function StatCard({
   color: string;
 }) {
   return (
-    <Card className="flex items-center gap-4">
-      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${color}`}>
+    <Card className="flex items-center gap-3">
+      <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${color}`}>
         {icon}
       </div>
       <div>
-        <p className="text-2xl font-semibold text-zinc-100">{value}</p>
+        <p className="text-xl font-semibold text-zinc-100">{value}</p>
         <p className="text-xs text-zinc-500">{label}</p>
       </div>
     </Card>
   );
-}
-
-function findCount(arr: { status?: string; priority?: string; count: number }[], key: string) {
-  return arr.find((a) => (a.status ?? a.priority) === key)?.count ?? 0;
 }
 
 export default function DashboardPage() {
@@ -66,57 +57,45 @@ export default function DashboardPage() {
       <h1 className="mb-6 text-lg font-semibold text-zinc-100">Dashboard</h1>
 
       {loading && !stats && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} shape="card" />
-          ))}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <Skeleton shape="card" className="h-[280px]" />
+            <Skeleton shape="card" className="h-[280px]" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Skeleton shape="card" />
+            <Skeleton shape="card" />
+          </div>
         </div>
       )}
 
       {stats && (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              icon={<Ticket size={20} className="text-blue-400" />}
-              label="Open Tickets"
-              value={findCount(stats.byStatus, "open")}
-              color="bg-blue-500/10"
-            />
-            <StatCard
-              icon={<ClockCountdown size={20} className="text-yellow-400" />}
-              label="Pending"
-              value={findCount(stats.byStatus, "pending")}
-              color="bg-yellow-500/10"
-            />
-            <StatCard
-              icon={<CheckCircle size={20} className="text-green-400" />}
-              label="Resolved"
-              value={findCount(stats.byStatus, "resolved")}
-              color="bg-green-500/10"
-            />
-            <StatCard
-              icon={<WarningCircle size={20} className="text-red-400" />}
-              label="Urgent"
-              value={findCount(stats.byPriority, "urgent")}
-              color="bg-red-500/10"
-            />
-            <StatCard
-              icon={<ChatDots size={20} className="text-purple-400" />}
+          <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <ChartCard title="Tickets by Status" headerRight={`${stats.byStatus.length} statuses`}>
+              <StatusDonut data={stats.byStatus} />
+            </ChartCard>
+            <ChartCard title="Active Tickets by Priority" headerRight={`${stats.byPriority.length} levels`}>
+              <PriorityBar data={stats.byPriority} />
+            </ChartCard>
+          </div>
+
+          <div className="mb-6 grid grid-cols-2 gap-4">
+            <KpiCard
+              icon={<ChatDots size={18} className="text-purple-400" />}
               label="Total Messages"
-              value={stats.totalMessages}
+              value={stats.totalMessages.toLocaleString()}
               color="bg-purple-500/10"
             />
-            <StatCard
-              icon={<Users size={20} className="text-teal-400" />}
+            <KpiCard
+              icon={<Users size={18} className="text-teal-400" />}
               label="Active Conversations (24h)"
               value={stats.activeConversations}
               color="bg-teal-500/10"
             />
           </div>
 
-          <h2 className="mb-3 mt-8 text-sm font-semibold text-zinc-100">
-            Recent Tickets
-          </h2>
+          <h2 className="mb-3 text-sm font-semibold text-zinc-100">Recent Tickets</h2>
           {stats.recentTickets.length === 0 ? (
             <p className="text-sm text-zinc-500">No tickets yet</p>
           ) : (
