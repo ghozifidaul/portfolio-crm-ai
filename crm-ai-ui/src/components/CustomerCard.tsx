@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import type { CustomerInbox } from "../hooks/useInbox";
-import { Card, Badge } from "./ui";
+import { Card, Badge, Avatar } from "./ui";
 
 const priorityVariant: Record<string, "urgent" | "high" | "medium" | "low" | "default"> = {
   urgent: "urgent",
@@ -62,7 +62,10 @@ export default function CustomerCard({
       className="cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
     >
       <div className="flex items-start justify-between">
-        <h3 className="text-sm font-medium text-zinc-100">{customer.customerName}</h3>
+        <div className="flex items-center gap-3">
+          <Avatar name={customer.customerName} size="md" />
+          <h3 className="text-sm font-medium text-zinc-100">{customer.customerName}</h3>
+        </div>
         {badge && (
           <Badge variant={priorityVariant[customer.priority ?? ""] ?? "default"} size="sm">
             {badge}
