@@ -13,6 +13,7 @@ TEST_RESULT.json
 
 # cf
 .wrangler/
+crm-ai-api/scripts/seed.sql
 
 # build
 dist/
