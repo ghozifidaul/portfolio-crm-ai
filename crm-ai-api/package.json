@@ -1,17 +1,24 @@
 {
   "name": "crm-ai-api",
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
-    "migrate": "bun run scripts/migrate.ts",
-    "seed": "bun run scripts/seed.ts",
-    "setup": "bun run migrate && bun run seed"
+    "dev": "wrangler dev src/index.ts",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 migrations apply crm-ai",
+    "db:migrate:local": "wrangler d1 migrations apply crm-ai --local",
+    "db:seed": "bun run scripts/generate-seed.ts && wrangler d1 execute crm-ai --file=./scripts/seed.sql",
+    "db:seed:local": "bun run scripts/generate-seed.ts && wrangler d1 execute crm-ai --local --file=./scripts/seed.sql",
+    "setup": "bun run db:migrate:local && bun run db:seed:local",
+    "migrate": "bun run db:migrate",
+    "seed": "bun run db:seed"
   },
   "dependencies": {
-    "hono": "^4.12.23",
-    "pg": "^8.21.0"
+    "bcryptjs": "^3.0.3",
+    "hono": "^4.12.23"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260619.1",
+    "@types/bcryptjs": "^3.0.0",
     "@types/bun": "latest",
-    "@types/pg": "^8.20.0"
+    "wrangler": "^4.103.0"
   }
 }

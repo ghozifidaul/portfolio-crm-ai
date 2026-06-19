@@ -11,5 +11,8 @@ TEST_RESULT.json
 .DS_Store
 *.log
 
+# cf
+.wrangler/
+
 # build
 dist/
