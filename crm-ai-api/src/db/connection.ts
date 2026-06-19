@@ -1,7 +1,5 @@
-import { Pool } from "pg";
+import type { Context } from "hono";
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
-export default pool;
+export function getDb(c: Context): D1Database {
+  return c.env.DB;
+}
