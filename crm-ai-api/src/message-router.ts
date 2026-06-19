@@ -24,32 +24,34 @@ export interface MessageRouterResult {
 }
 
 export async function storeMessage(
+  db: D1Database,
   customerId: string,
   content: string,
   sender: "customer" | "agent"
 ): Promise<DbMessage> {
-  const customer = await findById(customerId);
+  const customer = await findById(db, customerId);
   if (!customer) {
     throw Object.assign(new Error("Customer not found"), { status: 404 });
   }
 
-  return await addMessage(customerId, null, sender, content, null);
+  return await addMessage(db, customerId, null, sender, content, null);
 }
 
 export async function processInBackground(
+  db: D1Database,
   customerId: string,
   messageId: string,
   content: string
 ): Promise<void> {
   try {
-    const dbMessages = await getConversationHistory(customerId);
+    const dbMessages = await getConversationHistory(db, customerId);
     const history: ConversationEntry[] = dbMessages.map((m) => ({
       role: m.sender === "system" ? "system" : m.sender,
       content: m.content,
       timestamp: m.timestamp,
     }));
 
-    const openDbTickets = await getOpenTickets(customerId);
+    const openDbTickets = await getOpenTickets(db, customerId);
     const openTickets: AITicket[] = openDbTickets.map((t) => ({
       ticket_id: t.ticket_id,
       category: t.category,
@@ -69,8 +71,8 @@ export async function processInBackground(
 
     switch (aiResponse.action) {
       case "create": {
-        const ticket = await createTicket(customerId, aiResponse.fields);
-        await updateMessageTicket(messageId, ticket.ticket_id, "create");
+        const ticket = await createTicket(db, customerId, aiResponse.fields);
+        await updateMessageTicket(db, messageId, ticket.ticket_id, "create");
         break;
       }
 
@@ -79,7 +81,7 @@ export async function processInBackground(
           console.error("Background AI: update action without ticket_id");
           return;
         }
-        await updateTicket(aiResponse.ticket_id, {
+        await updateTicket(db, aiResponse.ticket_id, {
           category: aiResponse.fields.category,
           priority: aiResponse.fields.priority,
           status: aiResponse.fields.status,
@@ -87,16 +89,16 @@ export async function processInBackground(
           entities: aiResponse.fields.entities,
           tags: aiResponse.fields.tags,
         });
-        await updateMessageTicket(messageId, aiResponse.ticket_id, "update");
+        await updateMessageTicket(db, messageId, aiResponse.ticket_id, "update");
 
         if (aiResponse.resolution_detected) {
-          await resolveTicket(aiResponse.ticket_id);
+          await resolveTicket(db, aiResponse.ticket_id);
         }
         break;
       }
 
       case "no_action": {
-        await updateMessageTicket(messageId, null, "no_action");
+        await updateMessageTicket(db, messageId, null, "no_action");
         break;
       }
 
@@ -109,23 +111,24 @@ export async function processInBackground(
 }
 
 export async function processMessage(
+  db: D1Database,
   customerId: string,
   content: string,
   sender: "customer" | "agent"
 ): Promise<MessageRouterResult> {
-  const customer = await findById(customerId);
+  const customer = await findById(db, customerId);
   if (!customer) {
     throw Object.assign(new Error("Customer not found"), { status: 404 });
   }
 
-  const dbMessages = await getConversationHistory(customerId);
+  const dbMessages = await getConversationHistory(db, customerId);
   const history: ConversationEntry[] = dbMessages.map((m) => ({
     role: m.sender === "system" ? "system" : m.sender,
     content: m.content,
     timestamp: m.timestamp,
   }));
 
-  const openDbTickets = await getOpenTickets(customerId);
+  const openDbTickets = await getOpenTickets(db, customerId);
   const openTickets: AITicket[] = openDbTickets.map((t) => ({
     ticket_id: t.ticket_id,
     category: t.category,
@@ -144,8 +147,8 @@ export async function processMessage(
 
   switch (aiResponse.action) {
     case "create": {
-      const ticket = await createTicket(customerId, aiResponse.fields);
-      await addMessage(customerId, ticket.ticket_id, sender, content, "create");
+      const ticket = await createTicket(db, customerId, aiResponse.fields);
+      await addMessage(db, customerId, ticket.ticket_id, sender, content, "create");
       return { action: "create", ticket: serializeTicket(ticket), ai_response: aiResponse };
     }
 
@@ -153,7 +156,7 @@ export async function processMessage(
       if (!aiResponse.ticket_id) {
         throw Object.assign(new Error("AI returned update action without ticket_id"), { status: 400 });
       }
-      const updated = await updateTicket(aiResponse.ticket_id, {
+      const updated = await updateTicket(db, aiResponse.ticket_id, {
         category: aiResponse.fields.category,
         priority: aiResponse.fields.priority,
         status: aiResponse.fields.status,
@@ -164,10 +167,10 @@ export async function processMessage(
       if (!updated) {
         throw Object.assign(new Error(`Ticket ${aiResponse.ticket_id} not found`), { status: 400 });
       }
-      await addMessage(customerId, aiResponse.ticket_id, sender, content, "update");
+      await addMessage(db, customerId, aiResponse.ticket_id, sender, content, "update");
 
       if (aiResponse.resolution_detected) {
-        const resolved = await resolveTicket(aiResponse.ticket_id);
+        const resolved = await resolveTicket(db, aiResponse.ticket_id);
         return { action: "update", ticket: serializeTicket(resolved!), ai_response: aiResponse };
       }
 
@@ -175,7 +178,7 @@ export async function processMessage(
     }
 
     case "no_action": {
-      await addMessage(customerId, null, sender, content, "no_action");
+      await addMessage(db, customerId, null, sender, content, "no_action");
       return { action: "no_action", ticket: null, ai_response: aiResponse };
     }
 
