@@ -32,7 +32,7 @@ export interface AIResponse {
 }
 
 export const MODEL_NAME = "nemotron-3-ultra:cloud";
-export const API_URL = "http://localhost:11434/api/chat";
+export const API_URL = "https://ollama.com/api/chat";
 
 export const SYSTEM_PROMPT = `You are a ticket management AI for a customer support CRM.
 
@@ -113,6 +113,7 @@ export async function callAI(userPrompt: string): Promise<AIResponse | null> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": process.env.OLLAMA_API_KEY ?? "",
       },
       body: JSON.stringify({
         model: MODEL_NAME,
