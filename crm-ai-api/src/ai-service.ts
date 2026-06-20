@@ -1,35 +1,4 @@
-export interface Ticket {
-  ticket_id: string;
-  category: string;
-  priority: string;
-  status: string;
-  summary: string;
-  entities: string[];
-  tags: string[];
-  created_at: string;
-}
-
-export interface ConversationEntry {
-  role: string;
-  content: string;
-  timestamp: string;
-}
-
-export interface AIResponse {
-  action: string;
-  ticket_id: string | null;
-  match_confidence: number;
-  reasoning: string;
-  fields: {
-    category: string;
-    priority: string;
-    status: string;
-    summary: string;
-    entities: string[];
-    tags: string[];
-  };
-  resolution_detected: boolean;
-}
+import type { AITicket as Ticket, ConversationEntry, AIResponse } from "./types/domain";
 
 export const MODEL_NAME = "minimax-m3:cloud";
 export const API_URL = "https://ollama.com/api/chat";

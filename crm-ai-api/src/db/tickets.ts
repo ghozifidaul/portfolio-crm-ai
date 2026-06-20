@@ -1,5 +1,6 @@
 import { nextTicketId } from "./ticket-id";
-import type { DbTicket } from "./schema";
+import type { DbTicket } from "../types/db";
+import type { CreateTicketFields, UpdateTicketFields } from "../types/api";
 
 function parseTicket(row: Record<string, unknown>): DbTicket {
   return {
@@ -30,14 +31,7 @@ const TICKET_SELECT = `
 export async function createTicket(
   db: D1Database,
   customerId: string,
-  fields: {
-    category: string;
-    priority: string;
-    status: string;
-    summary: string;
-    entities: string[];
-    tags: string[];
-  }
+  fields: CreateTicketFields
 ): Promise<DbTicket> {
   const ticketId = await nextTicketId(db);
   const entities = JSON.stringify(fields.entities);
@@ -61,14 +55,7 @@ export async function createTicket(
 export async function updateTicket(
   db: D1Database,
   ticketId: string,
-  fields: {
-    category?: string;
-    priority?: string;
-    status?: string;
-    summary?: string;
-    entities?: string[];
-    tags?: string[];
-  }
+  fields: UpdateTicketFields
 ): Promise<DbTicket | null> {
   const sets: string[] = [];
   const params: unknown[] = [];

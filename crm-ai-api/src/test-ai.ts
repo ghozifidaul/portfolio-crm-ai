@@ -1,8 +1,6 @@
 import { readFileSync, writeFileSync } from "fs";
+import type { AITicket as Ticket, ConversationEntry, AIResponse } from "./types/domain";
 import {
-  AIResponse,
-  Ticket,
-  ConversationEntry,
   MODEL_NAME,
   buildUserPrompt,
   callAI,

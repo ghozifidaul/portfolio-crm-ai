@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import type { DbUser } from "./schema";
+import type { DbUser } from "../types/db";
 
 export async function findByUsername(db: D1Database, username: string): Promise<DbUser | null> {
   return db.prepare("SELECT * FROM users WHERE username = ?1").bind(username).first<DbUser>();

@@ -2,26 +2,9 @@ import { classifyMessage } from "./ai-service";
 import { findById } from "./db/users";
 import { createTicket, updateTicket, getOpenTickets, resolveTicket } from "./db/tickets";
 import { addMessage, updateMessageTicket, getConversationHistory } from "./db/messages";
-import type { AITicket, ConversationEntry, DbMessage } from "./db/schema";
-import type { AIResponse } from "./ai-service";
-
-export interface MessageRouterResult {
-  action: string;
-  ticket: {
-    ticket_id: string;
-    customer_id: string;
-    category: string;
-    priority: string;
-    status: string;
-    summary: string;
-    entities: string[];
-    tags: string[];
-    created_at: string;
-    updated_at: string;
-    resolved_at: string | null;
-  } | null;
-  ai_response: AIResponse;
-}
+import type { AITicket, ConversationEntry } from "./types/domain";
+import type { DbMessage } from "./types/db";
+import type { MessageRouterResult, TicketResponse } from "./types/api";
 
 export async function storeMessage(
   db: D1Database,
@@ -187,12 +170,7 @@ export async function processMessage(
   }
 }
 
-function serializeTicket(t: {
-  ticket_id: string; customer_id: string; category: string;
-  priority: string; status: string; summary: string;
-  entities: string[]; tags: string[];
-  created_at: string; updated_at: string; resolved_at: string | null;
-}) {
+function serializeTicket(t: TicketResponse) {
   return {
     ticket_id: t.ticket_id,
     customer_id: t.customer_id,

@@ -1,4 +1,4 @@
-import type { DbMessage } from "./schema";
+import type { DbMessage } from "../types/db";
 
 export async function addMessage(
   db: D1Database,
