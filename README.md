@@ -24,6 +24,30 @@ AI-powered CRM where the AI silently manages tickets (creation, updates, closure
   ```
 - [Wrangler](https://developers.cloudflare.com/workers/wrangler/) (comes with the API package via `bun install`)
 
+## Setup
+
+Copy the environment files:
+
+```sh
+cp crm-ai-api/.env.example crm-ai-api/.env
+cp crm-ai-ui/.env.example crm-ai-ui/.env
+```
+
+Then configure the variables:
+
+### `crm-ai-api/.env`
+
+| Variable | Description |
+|---|---|
+| `JWT_SECRET` | Secret key for signing auth tokens. Generate one with `openssl rand -hex 32`. |
+| `OLLAMA_API_KEY` | API key for Ollama (required for AI ticket classification). Get one at [ollama.com](https://ollama.com). |
+
+### `crm-ai-ui/.env`
+
+| Variable | Description |
+|---|---|
+| `VITE_API_BASE` | API base URL. Defaults to `http://localhost:8787` for local dev. Leave empty if using the Vite proxy. |
+
 ## Quick start
 
 ```sh
