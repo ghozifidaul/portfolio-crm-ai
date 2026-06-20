@@ -85,54 +85,31 @@ All share password `password123`.
 | `sari` | customer |
 | `dimas` | customer |
 
-## AI engine
+## Who it's for
 
-Connects to Ollama (`nemotron-3-ultra:cloud`) for ticket classification. Two message paths:
+Made for customer agents and companies that want real relationships with their customers through human interaction, while still managing tickets efficiently. The one job: autonomous ticket management.
 
-- **Sync** (`POST /api/messages`) — AI classifies inline, returns ticket immediately
-- **Async** (`POST /api/messages/direct`) — message stored immediately, AI runs in background via `c.executionCtx.waitUntil()`
+## Why this problem
 
-## Commands
+My wife is a customer service agent. Handling customers is hard, but managing tickets and filling forms is harder. Half her day is spent on tickets instead of customers. Everybody tries to automate human interaction — that's wrong. Ticket management is the real problem.
 
-### API (`crm-ai-api`)
+## What's already out there
 
-| Command | Description |
-|---|---|
-| `bun run dev` | Start wrangler dev server on `:8787` |
-| `bun run db:migrate:local` | Apply D1 migrations locally |
-| `bun run db:seed:local` | Regenerate + apply seed data |
-| `bun run db:migrate` | Apply migrations to remote D1 |
-| `bun run db:seed` | Seed remote D1 |
-| `bun run src/test-ai.ts` | Run AI classification tests (requires Ollama) |
+Mekari Qontak has AI, but they use it to automate human interaction. AI can't handle that well — it damages brand-customer relationships. Instead, AI should handle ticket management and summarize conversations.
 
-### UI (`crm-ai-ui`)
+## Scope
 
-| Command | Description |
-|---|---|
-| `bun run dev` | Vite dev server on `:5173` |
-| `bun run build` | TypeScript check + Vite build |
-| `bun run lint` | ESLint check |
+**In scope:** Autonomous ticket management (create, update, resolve), conversation summarization.
 
-## Deployment
+**Left out:** Human review of AI-created tickets. Current Gen AI is good enough; adding a human review step adds complexity without solving the real problem.
 
-### API
-```sh
-cd crm-ai-api
-bun run db:migrate          # apply migrations to production D1
-bun run db:seed             # (optional) seed production data
-bun run deploy              # wrangler deploy → Cloudflare Workers
-```
+## Three questions
 
-### UI
-```sh
-cd crm-ai-ui
-VITE_API_BASE=https://crm-ai-api.<your-worker>.workers.dev bun run build
-npx wrangler pages deploy dist/ --project-name=crm-ai-ui
-```
+- Will this help you manage your day-to-day work better?
+- Will this help you build better relationships with customers?
+- Will this help you solve customer problems faster?
 
-## Docs
+## What I'd do next
 
-- [AGENTS.md](./AGENTS.md) — developer guidance
-- [SPEC.md](./SPEC.md) — system design
-- `crm-ai-api/README.md` — API internals & test setup
-- `docs/UI-REDESIGN.md` — UI design notes
+- **Action recommendations on tickets** — helps agents decide what to do next faster.
+- **Autonomous reminder creation** — agents never miss a customer follow-up.
