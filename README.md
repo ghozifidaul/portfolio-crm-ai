@@ -4,6 +4,14 @@ AI-powered CRM where the AI silently manages tickets (creation, updates, closure
 
 **Stack:** Bun + Hono + Cloudflare D1 (SQLite) + React 19 + TypeScript + Tailwind CSS v4
 
+## Prerequisites
+
+- [Bun](https://bun.sh) — install:
+  ```sh
+  curl -fsSL https://bun.sh/install | bash
+  ```
+- [Wrangler](https://developers.cloudflare.com/workers/wrangler/) (comes with the API package via `bun install`)
+
 ## Quick start
 
 ```sh
