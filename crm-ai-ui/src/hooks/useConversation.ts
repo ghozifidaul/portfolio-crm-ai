@@ -65,8 +65,8 @@ export function useConversation(
             const unique = newMsgs.filter((m) => !existing.has(m.message_id));
             return unique.length > 0 ? [...prev, ...unique] : prev;
           });
-          setTickets(tkts);
         }
+        setTickets(tkts);
       } catch {
         // polling errors silently ignored
       }
