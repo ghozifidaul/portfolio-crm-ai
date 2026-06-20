@@ -54,7 +54,10 @@ export function useConversation(
     const interval = setInterval(async () => {
       if (!lastTimestampRef.current) return;
       try {
-        const newMsgs = await getMessagesSince(customerId, lastTimestampRef.current);
+        const [newMsgs, tkts] = await Promise.all([
+          getMessagesSince(customerId, lastTimestampRef.current),
+          getTicketsByCustomerId(customerId),
+        ]);
         if (newMsgs.length > 0) {
           lastTimestampRef.current = newMsgs[newMsgs.length - 1].timestamp;
           setMessages((prev) => {
@@ -62,13 +65,12 @@ export function useConversation(
             const unique = newMsgs.filter((m) => !existing.has(m.message_id));
             return unique.length > 0 ? [...prev, ...unique] : prev;
           });
-          const tkts = await getTicketsByCustomerId(customerId);
           setTickets(tkts);
         }
       } catch {
         // polling errors silently ignored
       }
-    }, 3000);
+    }, 5000);
     return () => clearInterval(interval);
   }, [direct, customerId]);
 
