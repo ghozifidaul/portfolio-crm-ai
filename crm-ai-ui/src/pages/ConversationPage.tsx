@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router";
-import { ArrowLeft } from "@phosphor-icons/react";
+import { ArrowLeftIcon } from "@phosphor-icons/react";
 import { useConversation } from "../hooks/useConversation";
 import MessageList from "../components/MessageList";
 import ReplyInput from "../components/ReplyInput";
@@ -24,7 +24,7 @@ export default function ConversationPage() {
     <div className="flex h-full flex-col">
       <header className="flex items-center gap-3 border-b border-zinc-800 bg-zinc-950 px-4 py-3">
         <Button variant="ghost" size="sm" onClick={() => navigate("/inbox")}>
-          <ArrowLeft size={16} />
+          <ArrowLeftIcon size={16} />
         </Button>
         <h1 className="text-base font-semibold text-zinc-100">
           {customerName}
@@ -39,7 +39,9 @@ export default function ConversationPage() {
                 <div
                   key={i}
                   className="flex"
-                  style={{ justifyContent: i % 2 === 0 ? "flex-end" : "flex-start" }}
+                  style={{
+                    justifyContent: i % 2 === 0 ? "flex-end" : "flex-start",
+                  }}
                 >
                   <Skeleton
                     shape="card"
@@ -68,7 +70,11 @@ export default function ConversationPage() {
           )}
           {!loading && !error && (
             <>
-              <MessageList messages={messages} ownSender={ownSender} customerName={customerName} />
+              <MessageList
+                messages={messages}
+                ownSender={ownSender}
+                customerName={customerName}
+              />
               <ReplyInput onSend={send} disabled={false} />
             </>
           )}
