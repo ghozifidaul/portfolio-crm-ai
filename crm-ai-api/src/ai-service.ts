@@ -31,7 +31,7 @@ export interface AIResponse {
   resolution_detected: boolean;
 }
 
-export const MODEL_NAME = "nemotron-3-ultra:cloud";
+export const MODEL_NAME = "minimax-m3:cloud";
 export const API_URL = "https://ollama.com/api/chat";
 
 export const SYSTEM_PROMPT = `You are a ticket management AI for a customer support CRM.
@@ -94,7 +94,7 @@ Resolution rules:
 export function buildUserPrompt(
   tickets: Ticket[],
   history: ConversationEntry[],
-  latestMessage: string
+  latestMessage: string,
 ): string {
   const ticketsStr = JSON.stringify(tickets);
   const historyStr = JSON.stringify(history);
@@ -113,7 +113,7 @@ export async function callAI(userPrompt: string): Promise<AIResponse | null> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": process.env.OLLAMA_API_KEY ?? "",
+        Authorization: process.env.OLLAMA_API_KEY ?? "",
       },
       body: JSON.stringify({
         model: MODEL_NAME,
@@ -143,7 +143,7 @@ export async function callAI(userPrompt: string): Promise<AIResponse | null> {
 export async function classifyMessage(
   tickets: Ticket[],
   history: ConversationEntry[],
-  latestMessage: string
+  latestMessage: string,
 ): Promise<AIResponse | null> {
   const prompt = buildUserPrompt(tickets, history, latestMessage);
   return callAI(prompt);
