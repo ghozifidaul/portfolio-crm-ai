@@ -6,9 +6,21 @@ AI-powered CRM where the AI silently manages tickets (creation, updates, closure
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) — install:
+- [Bun](https://bun.sh) — install via one of:
+
+  **macOS / Linux:**
   ```sh
   curl -fsSL https://bun.sh/install | bash
+  ```
+  **Windows:** Use PowerShell (requires [WSL](https://learn.microsoft.com/en-us/windows/wsl/install)):
+  ```powershell
+  powershell -c "irm bun.sh/install.ps1 | iex"
+  ```
+  **Package managers:**
+  ```sh
+  brew install oven-sh/bun/bun    # macOS (Homebrew)
+  npm install -g bun               # via npm
+  dnf install bun                  # Fedora
   ```
 - [Wrangler](https://developers.cloudflare.com/workers/wrangler/) (comes with the API package via `bun install`)
 
