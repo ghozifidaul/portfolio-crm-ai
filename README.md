@@ -51,6 +51,10 @@ Then configure the variables:
 ## Quick start
 
 ```sh
+# Create .env files from examples
+cp crm-ai-api/.env.example crm-ai-api/.env
+cp crm-ai-ui/.env.example crm-ai-ui/.env
+
 # API
 cd crm-ai-api
 bun install && bun run setup
