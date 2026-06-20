@@ -2,22 +2,20 @@
 
 AI-powered CRM where the AI silently manages tickets (creation, updates, closure) from conversation — agents focus on helping customers, not filling forms.
 
-**Stack:** Bun + Hono + PostgreSQL + React + TypeScript + Tailwind CSS
+**Stack:** Bun + Hono + Cloudflare D1 (SQLite) + React 19 + TypeScript + Tailwind CSS v4
 
 ## Quick start
 
 ```sh
 # API
 cd crm-ai-api
-bun install
-createdb crm_ai
-bun run setup
-bun run dev              # :3000
+bun install && bun run setup
+bun run dev                        # :8787 (wrangler dev)
 
 # UI (new terminal)
 cd crm-ai-ui
 bun install
-bun run dev              # :5173 (proxies /api/* to :3000)
+bun run dev                        # :5173 (proxies /api/* to :8787)
 ```
 
 Login with `agent1` / `password123`.
@@ -25,28 +23,72 @@ Login with `agent1` / `password123`.
 ## Structure
 
 ```
-crm-ai-api/     Bun + Hono + PostgreSQL backend
-crm-ai-ui/      React + Vite + Tailwind frontend
+crm-ai-api/     Hono + Cloudflare Workers + D1 backend
+crm-ai-ui/      React 19 + Vite + Tailwind CSS v4 frontend
 AGENTS.md       Developer guidance for AI agents
-SPEC.md         Full system design spec
+SPEC.md         System design specification
+docs/           Additional documentation
 ```
 
 ## Seeded users
 
-| Username | Role | Password |
-|---|---|---|
-| `agent1` | agent | `password123` |
-| `budi` | customer | `password123` |
-| `sari` | customer | `password123` |
-| `dimas` | customer | `password123` |
+All share password `password123`.
+
+| Username | Role |
+|---|---|
+| `agent1` | agent |
+| `budi` | customer |
+| `sari` | customer |
+| `dimas` | customer |
 
 ## AI engine
 
-Connects to Ollama (`nemotron-3-ultra:cloud`) for ticket classification. AI runs in background — messages are stored immediately, classification is async. See `crm-ai-api/README.md` for test setup.
+Connects to Ollama (`nemotron-3-ultra:cloud`) for ticket classification. Two message paths:
+
+- **Sync** (`POST /api/messages`) — AI classifies inline, returns ticket immediately
+- **Async** (`POST /api/messages/direct`) — message stored immediately, AI runs in background via `c.executionCtx.waitUntil()`
+
+## Commands
+
+### API (`crm-ai-api`)
+
+| Command | Description |
+|---|---|
+| `bun run dev` | Start wrangler dev server on `:8787` |
+| `bun run db:migrate:local` | Apply D1 migrations locally |
+| `bun run db:seed:local` | Regenerate + apply seed data |
+| `bun run db:migrate` | Apply migrations to remote D1 |
+| `bun run db:seed` | Seed remote D1 |
+| `bun run src/test-ai.ts` | Run AI classification tests (requires Ollama) |
+
+### UI (`crm-ai-ui`)
+
+| Command | Description |
+|---|---|
+| `bun run dev` | Vite dev server on `:5173` |
+| `bun run build` | TypeScript check + Vite build |
+| `bun run lint` | ESLint check |
+
+## Deployment
+
+### API
+```sh
+cd crm-ai-api
+bun run db:migrate          # apply migrations to production D1
+bun run db:seed             # (optional) seed production data
+bun run deploy              # wrangler deploy → Cloudflare Workers
+```
+
+### UI
+```sh
+cd crm-ai-ui
+VITE_API_BASE=https://crm-ai-api.<your-worker>.workers.dev bun run build
+npx wrangler pages deploy dist/ --project-name=crm-ai-ui
+```
 
 ## Docs
 
 - [AGENTS.md](./AGENTS.md) — developer guidance
 - [SPEC.md](./SPEC.md) — system design
-- `crm-ai-api/README.md` — API docs
-- `crm-ai-ui/README.md` — UI setup
+- `crm-ai-api/README.md` — API internals & test setup
+- `docs/UI-REDESIGN.md` — UI design notes
